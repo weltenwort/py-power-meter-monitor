@@ -1,0 +1,17 @@
+[mqtt]
+enabled = true
+configuration_topic_template = "homeassistant/sensor/{device_id}/config"
+state_topic_template = "homeassistant/sensor/{device_id}/state"
+
+[mqtt.broker]
+hostname = "localhost"
+port = 1883
+
+[mqtt.device]
+id = "logarex-power-meter-0"
+name = "Logarex Power Meter 0"
+manufacturer = "Logarex"
+model = "Unknown Model"
+
+[serial_port]
+port_url = "/dev/ttyNET0"
