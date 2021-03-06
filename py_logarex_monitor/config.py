@@ -1,8 +1,15 @@
+from enum import Enum
 from pathlib import Path
-from typing import Optional
+from typing import List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel
 import tomlkit
+
+from .iec_62056_protocol.obis_data_set import (
+    ObisFloatDataSet,
+    ObisIntegerDataSet,
+    ObisStringDataSet,
+)
 
 
 def load_default_configuration():
@@ -20,20 +27,30 @@ def load_configuration_from_text(config_file_text: str) -> "PyLogarexMonitorConf
     return PyLogarexMonitorConfig.parse_obj(dict(tomlkit.parse(config_file_text)))
 
 
-# class DefaultRegisterConfiguration(BaseModel):
-#     polling_enabled: bool = True
-#     polling_interval: float = 60.0
+class SerialPortParity(Enum):
+    NONE = "N"
+    EVEN = "E"
+    ODD = "O"
+    MARK = "M"
+    SPACE = "S"
 
 
-# class RegisterConfiguration(BaseModel):
-#     elster_index: int
-#     polling_enabled: Optional[bool]
-#     polling_interval: Optional[float]
+class SerialPortStopBits(Enum):
+    ONE = 1
+    ONE_POINT_FIVE = 1.5
+    TWO = 2
 
 
 class SerialPortConfig(BaseModel):
     port_url: str = "/dev/ttyUSB0"
-    polling_interval: float = 30.0
+    baud_rate: int = 9600
+    byte_size: int = 8
+    parity: SerialPortParity = SerialPortParity.NONE
+    stop_bits: SerialPortStopBits = SerialPortStopBits.ONE
+    polling_delay: float = 30.0
+    response_delay: float = 0.5
+    read_timeout: float = 10.0
+    write_timeout: float = 10.0
 
     class Config:
         allow_mutation = False
@@ -62,9 +79,48 @@ class MqttConfig(BaseModel):
     device: MqttDeviceConfig = MqttDeviceConfig()
 
 
+class ObisBaseDataSetConfig(BaseModel):
+    id: Tuple[int, int, int, int, int, int]
+    name: str
+
+
+class ObisIntegerDataSetConfig(ObisBaseDataSetConfig):
+    value_type: Literal["integer"]
+
+    @property
+    def obis_data_set_type(self):
+        return ObisIntegerDataSet
+
+
+class ObisFloatDataSetConfig(ObisBaseDataSetConfig):
+    value_type: Literal["float"]
+
+    @property
+    def obis_data_set_type(self):
+        return ObisFloatDataSet
+
+
+class ObisStringDataSetConfig(ObisBaseDataSetConfig):
+    value_type: Literal["string"]
+
+    @property
+    def obis_data_set_type(self):
+        return ObisStringDataSet
+
+
+ObisDataSetConfig = Union[
+    ObisIntegerDataSetConfig, ObisFloatDataSetConfig, ObisStringDataSetConfig
+]
+
+
+class ObisConfig(BaseModel):
+    data_sets: List[ObisDataSetConfig] = []
+
+
 class PyLogarexMonitorConfig(BaseModel):
     serial_port: SerialPortConfig = SerialPortConfig()
     mqtt: MqttConfig = MqttConfig()
+    obis: ObisConfig = ObisConfig()
 
     class Config:
         allow_mutation = False

@@ -29,7 +29,10 @@ async def read_iec_62056_data_from_serial(
     topic: PublishSubscribeTopic[DataBlock],
     serial_stream_reader: StreamReader,
     serial_stream_writer: StreamWriter,
-    polling_interval: float,
+    polling_delay: float,
+    response_delay: float,
+    read_timeout: float,
+    write_timeout: float,
 ):
     current_state = InitialState()
     next_event = ResetEvent()
@@ -51,25 +54,25 @@ async def read_iec_62056_data_from_serial(
             for next_effect in next_effects:
                 logger.debug(f"IEC 62056 state machine evaluating effect {next_effect}")
                 if isinstance(next_effect, SendMessageEffect):
-                    async with timeout(15.0):
+                    async with timeout(write_timeout):
                         serial_stream_writer.write(bytes(next_effect.message))
                         await serial_stream_writer.drain()
                 elif isinstance(next_effect, AwaitMessageEffect):
-                    async with timeout(15.0):
+                    async with timeout(read_timeout):
                         message = await next_effect.message_type.read_from_stream(
                             serial_stream_reader
                         )
                         next_event = ReceiveMessageEvent(message=message)
                 elif isinstance(next_effect, ResetEffect):
                     next_event = ResetEvent()
-                    await asyncio.sleep(polling_interval)
+                    await asyncio.sleep(polling_delay)
 
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(response_delay)
         except Iec62056ProtocolError:
             logger.exception(f"Protocol error in state {current_state}")
             next_event = ResetEvent()
-            await asyncio.sleep(polling_interval)
+            await asyncio.sleep(polling_delay)
         except (asyncio.TimeoutError, asyncio.CancelledError):
-            logger.exception(f"Timeout error in state {current_state}")
+            logger.exception(f"Error in state {current_state}")
             next_event = ResetEvent()
-            await asyncio.sleep(polling_interval)
+            await asyncio.sleep(polling_delay)

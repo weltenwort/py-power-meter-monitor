@@ -58,7 +58,9 @@ def run(
 
     asyncio.run(
         run_monitor_serial(
-            serial_config=configuration.serial_port, mqtt_config=configuration.mqtt
+            serial_config=configuration.serial_port,
+            mqtt_config=configuration.mqtt,
+            obis_config=configuration.obis,
         )
         # run_monitor_canbus(
         #     can_interface=can_interface,

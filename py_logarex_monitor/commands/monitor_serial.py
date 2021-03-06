@@ -3,41 +3,32 @@ import asyncio
 import asyncio_mqtt
 import serial_asyncio
 
-from ..config import MqttConfig, SerialPortConfig
+from ..config import MqttConfig, ObisConfig, SerialPortConfig
 from ..iec_62056_protocol.data_block import DataBlock
 from ..utils.async_closing import async_closing
 from ..utils.publish_subscribe_topic import PublishSubscribeTopic
 from ..workers.iec_62056_data_serial_reader import read_iec_62056_data_from_serial
+from ..workers.iec_62056_obis_data_set_logger import log_iec_62056_obis_data_sets
 
 
 async def run_monitor_serial(
     serial_config: SerialPortConfig,
     mqtt_config: MqttConfig,
-    # default_register_configuration: DefaultRegisterConfiguration,
-    # register_configurations: List[RegisterConfiguration] = [],
-    # register_definitions: List[RegisterDefinition] = [],
+    obis_config: ObisConfig,
 ):
     data_blocks: PublishSubscribeTopic[DataBlock] = PublishSubscribeTopic()
 
-    # register_configurations_by_index = {
-    #     register_configuration.elster_index: register_configuration
-    #     for register_configuration in register_configurations
-    # }
+    obis_data_set_configs_by_id = {
+        obis_data_set_config.id: obis_data_set_config
+        for obis_data_set_config in obis_config.data_sets
+    }
 
-    # polling_configurations = [
-    #     create_register_polling_configuration(
-    #         register_definition=register_definition,
-    #         register_configuration=register_configurations_by_index.get(
-    #             register_definition.elster_index
-    #         ),
-    #         default_register_configuration=default_register_configuration,
-    #     )
-    #     for register_definition in register_definitions
-    # ]
-
-    # TODO: set other connection params
     serial_reader, serial_writer = await serial_asyncio.open_serial_connection(
-        url=serial_config.port_url
+        url=serial_config.port_url,
+        baudrate=serial_config.baud_rate,
+        bytesize=serial_config.byte_size,
+        parity=serial_config.parity.value,
+        stopbits=serial_config.stop_bits.value,
     )
 
     async with async_closing(serial_writer):
@@ -52,46 +43,19 @@ async def run_monitor_serial(
                     topic=data_blocks,
                     serial_stream_reader=serial_reader,
                     serial_stream_writer=serial_writer,
-                    polling_interval=serial_config.polling_interval,
+                    polling_delay=serial_config.polling_delay,
+                    response_delay=serial_config.response_delay,
+                    read_timeout=serial_config.read_timeout,
+                    write_timeout=serial_config.write_timeout,
+                ),
+                log_iec_62056_obis_data_sets(
+                    topic=data_blocks,
+                    obis_data_set_configs_by_id=obis_data_set_configs_by_id,
                 )
-                # log_elster_frames(topic=elster_frames) if log_frames else async_noop(),
-                # log_elster_registers(
-                #     topic=elster_frames, register_definitions=register_definitions
-                # )
-                # if log_registers
-                # else async_noop(),
-                # mqtt_log_elster_registers(
-                #     elster_frames=elster_frames,
-                #     mqtt_client=mqtt_client,
-                #     mqtt_config=mqtt_config,
-                #     register_definitions=register_definitions,
-                # )
-                # if mqtt_config.enabled
-                # else async_noop(),
-                # read_elster_canbus(topic=elster_frames, bus=bus),
-                # poll_elster_registers_canbus(
-                #     bus=bus,
-                #     polling_configurations=polling_configurations,
-                #     sender_id=sender_id,
-                # ),
+                if True
+                else async_noop(),
             )
 
 
 async def async_noop():
     pass
-
-
-# def create_register_polling_configuration(
-#     register_definition: RegisterDefinition,
-#     register_configuration: Optional[RegisterConfiguration],
-#     default_register_configuration: DefaultRegisterConfiguration,
-# ) -> RegisterPollingConfiguration:
-#     return RegisterPollingConfiguration(
-#         register_definition=register_definition,
-#         enabled=register_configuration.polling_enabled
-#         if register_configuration and register_configuration.polling_enabled != None
-#         else default_register_configuration.polling_enabled,
-#         interval=register_configuration.polling_interval
-#         if register_configuration and register_configuration.polling_interval != None
-#         else default_register_configuration.polling_interval,
-#     )
