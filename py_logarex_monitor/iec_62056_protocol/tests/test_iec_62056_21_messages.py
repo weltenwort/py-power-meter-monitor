@@ -11,52 +11,54 @@ from ..iec_62056_21_messages import (
 
 
 def test_request_message_from_bytes():
-    line = b"/?!\r\n"
-    message = RequestMessage()
+    frame = b"/?!\r\n"
+    message = RequestMessage(timestamp=0)
 
-    assert bytes(message) == line
-    assert RequestMessage.from_bytes(line) == message
+    assert bytes(message) == frame
+    assert RequestMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
 def test_request_message_from_bytes_raises():
     with raises(ParsingError):
-        RequestMessage.from_bytes(b"invalid")
+        RequestMessage.from_bytes(timestamp=0, frame=b"invalid")
 
 
 def test_request_message_with_device_address():
-    line = b"/?SOME_ADDRESS!\r\n"
-    message = RequestMessage(device_address="SOME_ADDRESS")
+    frame = b"/?SOME_ADDRESS!\r\n"
+    message = RequestMessage(timestamp=0, device_address="SOME_ADDRESS")
 
-    assert bytes(message) == line
-    assert RequestMessage.from_bytes(line) == message
+    assert bytes(message) == frame
+    assert RequestMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
 def test_identification_message():
-    line = b"/LOG5LK123\r\n"
+    frame = b"/LOG5LK123\r\n"
     message = IdentificationMessage(
-        manufacturer_id="LOG", baud_rate_id="5", identification="LK123"
+        timestamp=0, manufacturer_id="LOG", baud_rate_id="5", identification="LK123"
     )
 
-    assert bytes(message) == line
-    assert IdentificationMessage.from_bytes(line) == message
+    assert bytes(message) == frame
+    assert IdentificationMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
 def test_acknowledgement_message():
-    line = b"\x06050\r\n"
+    frame = b"\x06050\r\n"
     message = AcknowledgementMessage(
-        protocol_control="0", baud_rate_id="5", mode_control="0"
+        timestamp=0, protocol_control="0", baud_rate_id="5", mode_control="0"
     )
 
-    assert bytes(message) == line
-    assert AcknowledgementMessage.from_bytes(line) == message
+    assert bytes(message) == frame
+    assert AcknowledgementMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
 def test_data_message():
-    line = b"\x02%s!\r\n\x03\x67" % sample_data_block
-    message = DataMessage(data=DataBlock.from_bytes(sample_data_block))
+    frame = b"\x02%s!\r\n\x03\x67" % sample_data_block
+    message = DataMessage(
+        timestamp=0, data=DataBlock.from_bytes(timestamp=0, data=sample_data_block)
+    )
 
-    assert bytes(message) == line
-    assert DataMessage.from_bytes(line) == message
+    assert bytes(message) == frame
+    assert DataMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
 sample_data_block = (

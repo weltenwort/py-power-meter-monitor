@@ -9,6 +9,9 @@ from ..utils.async_closing import async_closing
 from ..utils.publish_subscribe_topic import PublishSubscribeTopic
 from ..workers.iec_62056_data_serial_reader import read_iec_62056_data_from_serial
 from ..workers.iec_62056_obis_data_set_logger import log_iec_62056_obis_data_sets
+from ..workers.iec_62056_obis_data_set_mqtt_logger import (
+    mqtt_log_iec_62056_obis_data_sets,
+)
 
 
 async def run_monitor_serial(
@@ -47,6 +50,12 @@ async def run_monitor_serial(
                     response_delay=serial_config.response_delay,
                     read_timeout=serial_config.read_timeout,
                     write_timeout=serial_config.write_timeout,
+                ),
+                mqtt_log_iec_62056_obis_data_sets(
+                    topic=data_blocks,
+                    mqtt_client=mqtt_client,
+                    mqtt_config=mqtt_config,
+                    obis_data_set_configs_by_id=obis_data_set_configs_by_id,
                 ),
                 log_iec_62056_obis_data_sets(
                     topic=data_blocks,

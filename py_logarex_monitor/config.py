@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, IntEnum
 from pathlib import Path
 from typing import List, Literal, Optional, Tuple, Union
 
@@ -25,6 +25,18 @@ def load_configuration_from_file_path(config_file_path: Path):
 
 def load_configuration_from_text(config_file_text: str) -> "PyLogarexMonitorConfig":
     return PyLogarexMonitorConfig.parse_obj(dict(tomlkit.parse(config_file_text)))
+
+
+class LoggingLevel(IntEnum):
+    critical = 50
+    error = 40
+    warning = 30
+    info = 20
+    debug = 10
+
+
+class LoggingConfig(BaseModel):
+    level: LoggingLevel = LoggingLevel.error
 
 
 class SerialPortParity(Enum):
@@ -118,6 +130,7 @@ class ObisConfig(BaseModel):
 
 
 class PyLogarexMonitorConfig(BaseModel):
+    logging: LoggingConfig = LoggingConfig()
     serial_port: SerialPortConfig = SerialPortConfig()
     mqtt: MqttConfig = MqttConfig()
     obis: ObisConfig = ObisConfig()

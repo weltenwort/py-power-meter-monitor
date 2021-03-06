@@ -5,6 +5,7 @@ from typing import Optional
 
 @dataclass
 class DataSet:
+    timestamp: float
     address: str
     value: Optional[str]
     unit: Optional[str]
@@ -17,7 +18,7 @@ class DataSet:
         )
 
     @classmethod
-    def from_bytes(cls, line: bytes) -> "DataSet":
+    def from_bytes(cls, timestamp: float, line: bytes) -> "DataSet":
         matches = re.match(
             b"^(?P<address>[^(]+)\\((?P<value>[^()*/!]{0,32})?(?:\\*(?P<unit>[^()/!]{0,16}))?\\)$",
             line,
@@ -32,6 +33,7 @@ class DataSet:
         match_unit = matches.group("unit")
 
         return cls(
+            timestamp=timestamp,
             address=matches.group("address").decode("utf-8"),
             value=match_value.decode("utf-8") if match_value is not None else None,
             unit=match_unit.decode("utf-8") if match_unit is not None else None,
@@ -46,10 +48,10 @@ class DataBlock:
         return b"".join(b"%s\r\n" % bytes(line) for line in self.data_lines)
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> "DataBlock":
+    def from_bytes(cls, timestamp: float, data: bytes) -> "DataBlock":
         return cls(
             data_lines=[
-                DataSet.from_bytes(line)
+                DataSet.from_bytes(timestamp, line)
                 for line in data.split(b"\r\n")
                 if len(line) > 0
             ]

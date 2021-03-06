@@ -13,29 +13,34 @@ def test_parse_obis_id_from_address():
 
 def test_parse_obis_integer_data_set():
     obis_data_set = ObisIntegerDataSet.from_iec_62056_21_data_set(
-        DataSet(address="1-0:16.7.0*255", value="000028", unit="W")
+        DataSet(timestamp=0, address="1-0:16.7.0*255", value="000028", unit="W")
     )
 
     assert obis_data_set == ObisIntegerDataSet(
-        id=(1, 0, 16, 7, 0, 255), value=28, unit="W"
+        timestamp=0, id=(1, 0, 16, 7, 0, 255), value=28, unit="W"
     )
 
 
 def test_parse_obis_float_data_set():
     obis_data_set = ObisFloatDataSet.from_iec_62056_21_data_set(
-        DataSet(address="1-0:1.8.0*255", value="015882.6927", unit="kWh")
+        DataSet(timestamp=0, address="1-0:1.8.0*255", value="015882.6927", unit="kWh")
     )
 
     assert obis_data_set == ObisFloatDataSet(
-        id=(1, 0, 1, 8, 0, 255), value=15882.6927, unit="kWh"
+        timestamp=0, id=(1, 0, 1, 8, 0, 255), value=15882.6927, unit="kWh"
     )
 
 
 def test_parse_obis_string_data_set():
     obis_data_set = ObisStringDataSet.from_iec_62056_21_data_set(
-        DataSet(address="1-0:0.2.0*255", value="ver.03,432F,20170504", unit=None)
+        DataSet(
+            timestamp=0,
+            address="1-0:0.2.0*255",
+            value="ver.03,432F,20170504",
+            unit=None,
+        )
     )
 
     assert obis_data_set == ObisStringDataSet(
-        id=(1, 0, 0, 2, 0, 255), value="ver.03,432F,20170504"
+        timestamp=0, id=(1, 0, 0, 2, 0, 255), value="ver.03,432F,20170504", unit=None
     )

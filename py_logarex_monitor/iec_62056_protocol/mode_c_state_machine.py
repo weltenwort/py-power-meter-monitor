@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple, Type, Union
+from typing import Tuple, Type, Union
 
 from .data_block import DataBlock
 from .iec_62056_21_messages import (
@@ -76,7 +76,7 @@ def get_next_state(
         return (
             InitialState(),
             [
-                SendMessageEffect(message=RequestMessage()),
+                SendMessageEffect(message=RequestMessage(0)),
                 AwaitMessageEffect(message_type=IdentificationMessage),
             ],
         )
@@ -91,6 +91,7 @@ def get_next_state(
                 [
                     SendMessageEffect(
                         message=AcknowledgementMessage(
+                            timestamp=0,
                             protocol_control="0",
                             baud_rate_id=event.message.baud_rate_id,
                             mode_control="0",

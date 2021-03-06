@@ -1,6 +1,5 @@
+from logging import getLogger
 from typing import Dict
-
-from typer import echo
 
 from ..config import ObisDataSetConfig
 from ..iec_62056_protocol.data_block import DataBlock
@@ -12,7 +11,8 @@ async def log_iec_62056_obis_data_sets(
     topic: PublishSubscribeTopic[DataBlock],
     obis_data_set_configs_by_id: Dict[ObisId, ObisDataSetConfig],
 ):
-    echo(str(obis_data_set_configs_by_id))
+    logger = getLogger(__package__)
+
     async for data_block in topic.items():
         for data_set in data_block.data_lines:
             obis_data_set_config = obis_data_set_configs_by_id.get(
@@ -20,7 +20,7 @@ async def log_iec_62056_obis_data_sets(
             )
 
             if obis_data_set_config is None:
-                echo(f"Unknown data set: {data_set}")
+                logger.debug(f"Unknown data set: {data_set}")
                 continue
 
             obis_data_set = (
@@ -29,7 +29,7 @@ async def log_iec_62056_obis_data_sets(
                 )
             )
 
-            echo(
+            logger.debug(
                 f"Known data set '{obis_data_set_config.name}' {obis_data_set_config.id}: "
                 f"{obis_data_set.value} {getattr(obis_data_set, 'unit', '')}"
             )
