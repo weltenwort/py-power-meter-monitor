@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  ci:
+    name: Run tests on ${{ matrix.os }} using Python ${{ matrix.python_version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version: [3.9]
+        poetry_version: [1.1.5]
+        os: [ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Setup poetry
+        uses: Gr1N/setup-poetry@v4
+        with:
+          poetry-version: ${{ matrix.poetry_version }}
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+      - name: Install dependencies
+        run: poetry install
+      - name: Run tests
+        run: poetry run pytest
