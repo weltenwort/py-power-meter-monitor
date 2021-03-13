@@ -60,5 +60,4 @@ class DataBlock:
         )
 
     def with_manufacturer_identification(self, manufacturer_identification: str):
-        print(f"XXX {manufacturer_identification}")
         return replace(self, manufacturer_identification=manufacturer_identification)
