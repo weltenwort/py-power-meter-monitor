@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import re
 from typing import Optional
 
@@ -42,6 +42,7 @@ class DataSet:
 
 @dataclass
 class DataBlock:
+    manufacturer_identification: str
     data_lines: list[DataSet]
 
     def __bytes__(self) -> bytes:
@@ -54,5 +55,10 @@ class DataBlock:
                 DataSet.from_bytes(timestamp, line)
                 for line in data.split(b"\r\n")
                 if len(line) > 0
-            ]
+            ],
+            manufacturer_identification="",
         )
+
+    def with_manufacturer_identification(self, manufacturer_identification: str):
+        print(f"XXX {manufacturer_identification}")
+        return replace(self, manufacturer_identification=manufacturer_identification)

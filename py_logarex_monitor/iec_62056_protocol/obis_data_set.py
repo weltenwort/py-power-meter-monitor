@@ -57,7 +57,22 @@ class ObisStringDataSet(BaseObisDataSet):
         )
 
 
-ObisDataSet = Union[ObisIntegerDataSet, ObisFloatDataSet, ObisStringDataSet]
+@dataclass
+class UnknownObisDataSet(BaseObisDataSet):
+    value: None = None
+
+    @classmethod
+    def from_iec_62056_21_data_set(cls, data_set: DataSet):
+        return cls(
+            timestamp=data_set.timestamp,
+            id=parse_obis_id_from_address(data_set.address),
+            unit=data_set.unit,
+        )
+
+
+ObisDataSet = Union[
+    ObisIntegerDataSet, ObisFloatDataSet, ObisStringDataSet, UnknownObisDataSet
+]
 
 
 obis_id_expression = re.compile(r"^(\d+)-(\d+):(\d+)\.(\d+)\.(\d+)\*(\d+)$")

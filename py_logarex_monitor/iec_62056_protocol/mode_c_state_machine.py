@@ -109,7 +109,14 @@ def get_next_state(
             )
     elif isinstance(state, IdentifiedState) and isinstance(event, ReceiveMessageEvent):
         if isinstance(event.message, DataMessage):
-            return (DataReadoutSuccessState(data=event.message.data), [ResetEffect()])
+            return (
+                DataReadoutSuccessState(
+                    data=event.message.data.with_manufacturer_identification(
+                        state.identification
+                    )
+                ),
+                [ResetEffect()],
+            )
         else:
             return (
                 ProtocolErrorState(

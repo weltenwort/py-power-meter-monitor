@@ -1,15 +1,17 @@
 import json
 from logging import getLogger
+import re
 from typing import Dict
 
 import asyncio_mqtt
 
 from ..config import MqttConfig, ObisDataSetConfig
 from ..iec_62056_protocol.data_block import DataBlock
+from ..iec_62056_protocol.obis_data_block import ObisDataBlock
 from ..iec_62056_protocol.obis_data_set import (
     ObisDataSet,
     ObisId,
-    parse_obis_id_from_address,
+    UnknownObisDataSet,
 )
 from ..utils.publish_subscribe_topic import PublishSubscribeTopic
 
@@ -26,34 +28,39 @@ async def mqtt_log_iec_62056_obis_data_sets(
     configured_ids: set[ObisId] = set()
 
     async for frame in topic.items():
-        for data_set in frame.data_lines:
-            data_set_id = parse_obis_id_from_address(data_set.address)
-            obis_data_set_config = obis_data_set_configs_by_id.get(data_set_id)
+        obis_data_block = ObisDataBlock.from_iec_62056_21_data_block(
+            obis_data_set_configs=obis_data_set_configs_by_id, data_block=frame
+        )
 
-            if obis_data_set_config is None:
-                logger.error(f"Failed to get obis data set config for id {data_set_id}")
+        for obis_data_set in obis_data_block.data_sets:
+            obis_data_set_config = obis_data_set_configs_by_id.get(obis_data_set.id)
+
+            if (
+                isinstance(obis_data_set, UnknownObisDataSet)
+                or obis_data_set_config is None
+            ):
+                logger.error(f"Unknown obis data set config for id {obis_data_set.id}")
                 continue
 
-            obis_data_set = (
-                obis_data_set_config.obis_data_set_type.from_iec_62056_21_data_set(
-                    data_set
-                )
-            )
-
-            if data_set_id not in configured_ids:
+            # configure entity upon first sighting
+            if obis_data_set.id not in configured_ids:
                 configuration_topic = get_configuration_topic(
                     mqtt_config, obis_data_set_config
                 )
                 configuration_payload = get_configuration_payload(
-                    mqtt_config, obis_data_set_config, obis_data_set
+                    mqtt_config=mqtt_config,
+                    obis_data_set_config=obis_data_set_config,
+                    obis_data_block=obis_data_block,
+                    obis_data_set=obis_data_set,
                 )
                 await mqtt_client.publish(
                     topic=configuration_topic,
                     payload=configuration_payload,
                     retain=True,
                 )
-                configured_ids.add(data_set_id)
+                configured_ids.add(obis_data_set.id)
 
+            # publish state
             state_topic = get_state_topic(mqtt_config, obis_data_set_config)
             state_payload = get_state_payload(obis_data_set)
 
@@ -65,6 +72,7 @@ async def mqtt_log_iec_62056_obis_data_sets(
 def get_configuration_payload(
     mqtt_config: MqttConfig,
     obis_data_set_config: ObisDataSetConfig,
+    obis_data_block: ObisDataBlock,
     obis_data_set: ObisDataSet,
 ):
     sensor_name = get_sensor_name(mqtt_config, obis_data_set_config)
@@ -77,9 +85,12 @@ def get_configuration_payload(
                 "state_topic": state_topic,
                 "value_template": "{{ value_json.value }}",
                 "device": {
-                    "identifiers": [mqtt_config.device.id],
+                    "identifiers": [obis_data_block.device_id],
                     "manufacturer": mqtt_config.device.manufacturer,
-                    "model": mqtt_config.device.model,
+                    "model": (
+                        obis_data_block.manufacturer_identification
+                        or mqtt_config.device.model
+                    ),
                     "name": mqtt_config.device.name,
                 },
                 "unique_id": sensor_name,
@@ -99,18 +110,29 @@ def get_configuration_topic(
     mqtt_config: MqttConfig, obis_data_set_config: ObisDataSetConfig
 ):
     return mqtt_config.configuration_topic_template.format(
-        device_id=get_sensor_name(mqtt_config, obis_data_set_config)
+        entity_id=slugify_sensor_name(
+            get_sensor_name(mqtt_config, obis_data_set_config)
+        )
     )
 
 
 def get_state_topic(mqtt_config: MqttConfig, obis_data_set_config: ObisDataSetConfig):
     return mqtt_config.state_topic_template.format(
-        device_id=get_sensor_name(mqtt_config, obis_data_set_config)
+        entity_id=slugify_sensor_name(
+            get_sensor_name(mqtt_config, obis_data_set_config)
+        )
     )
 
 
 def get_sensor_name(mqtt_config: MqttConfig, obis_data_set_config: ObisDataSetConfig):
     return f"{mqtt_config.device.name} {obis_data_set_config.name}"
+
+
+slug_replacement_expressions = re.compile(r"\W")
+
+
+def slugify_sensor_name(sensor_name: str):
+    return slug_replacement_expressions.sub("-", sensor_name)
 
 
 def get_device_class(obis_data_set: ObisDataSet):

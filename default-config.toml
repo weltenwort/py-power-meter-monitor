@@ -3,8 +3,8 @@ level = 40 # error level (see built-in python logging levels)
 
 [mqtt]
 enabled = true
-configuration_topic_template = "homeassistant/sensor/{device_id}/config"
-state_topic_template = "homeassistant/sensor/{device_id}/state"
+configuration_topic_template = "homeassistant/sensor/{entity_id}/config"
+state_topic_template = "homeassistant/sensor/{entity_id}/state"
 
 [mqtt.broker]
 hostname = "localhost"
@@ -17,7 +17,7 @@ manufacturer = "Logarex"
 model = "Unknown Model"
 
 [serial_port]
-port_url = "/dev/ttyNET0"
+port_url = "/dev/ttyUSB0"
 
 [obis]
 

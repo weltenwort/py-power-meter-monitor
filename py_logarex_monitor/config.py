@@ -84,8 +84,8 @@ class MqttDeviceConfig(BaseModel):
 
 class MqttConfig(BaseModel):
     enabled: bool = True
-    configuration_topic_template: str = "homeassistant/sensor/{device_id}/config"
-    state_topic_template: str = "homeassistant/sensor/{device_id}/state"
+    configuration_topic_template: str = "homeassistant/sensor/{entity_id}/config"
+    state_topic_template: str = "homeassistant/sensor/{entity_id}/state"
 
     broker: MqttBrokerConfig = MqttBrokerConfig()
     device: MqttDeviceConfig = MqttDeviceConfig()
