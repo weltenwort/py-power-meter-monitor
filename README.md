@@ -1,6 +1,6 @@
 # py-logarex-monitor
 
-[![license](https://img.shields.io/github/license/weltenwort/:repo.svg)](LICENSE)
+[![license](https://img.shields.io/github/license/weltenwort/py-logarex-monitor?style=flat-square)](LICENSE)
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
 A bridge between the RS-485 interface of certain [Logarex] power meters and MQTT with Home Assistant support.
@@ -15,7 +15,7 @@ A bridge between the RS-485 interface of certain [Logarex] power meters and MQTT
 
 ## Background
 
-This is intended to deployed on a device that has a physical RS-485 connection to a power meter manufactured by [Logarex]. It has only been tested with the following models:
+This is intended to be deployed on a device that has a physical RS-485 connection to a power meter manufactured by [Logarex]. It has only been tested with the following models:
 
 - LK13BE803039
 
