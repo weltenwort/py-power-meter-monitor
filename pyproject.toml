@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "py-logarex-monitor"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Felix Stürmer <stuermer@weltenwort.de>"]
 license = "MIT"
