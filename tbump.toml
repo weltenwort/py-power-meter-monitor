@@ -23,5 +23,5 @@ src = "pyproject.toml"
 search = '^version = "{current_version}"$'
 
 [[file]]
-src = "py_hpsu_monitor/__init__.py"
+src = "py_logarex_monitor/__init__.py"
 search = '^__version__ = "{current_version}"$'
