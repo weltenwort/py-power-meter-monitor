@@ -35,8 +35,7 @@ To deploy from source use [poetry] to install or build a wheel.
 The included `Dockerfile` contains build instructions for an image based on Alpine Linux. The recommended way to build and deploy it is [podman]:
 
 ```
-$ poetry build --format wheel
-$ podman build --rm -t py-logarex-monitor:latest --build-arg py_logarex_monitor_version=0.1.0 .
+$ podman build --rm -t py-logarex-monitor:latest .
 $ podman run \
   --device /dev/ttyUSB0:/dev/ttyUSB0 \
   --volume $(pwd)/default-config.toml:/home/py-logarex-monitor/config.toml:ro \
