@@ -11,9 +11,9 @@ hostname = "localhost"
 port = 1883
 
 [mqtt.device]
-id = "logarex-power-meter-0"
-name = "Logarex Power Meter 0"
-manufacturer = "Logarex"
+id = "power-meter-0"
+name = "Power Meter 0"
+manufacturer = "Unknown Manufacturer"
 model = "Unknown Model"
 
 [serial_port]

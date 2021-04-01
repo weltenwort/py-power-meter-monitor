@@ -1,4 +1,4 @@
-github_url = "https://github.com/weltenwort/py-logarex-monitor/"
+github_url = "https://github.com/weltenwort/py-power-meter-monitor/"
 
 [version]
 current = "0.1.1"
@@ -23,5 +23,5 @@ src = "pyproject.toml"
 search = '^version = "{current_version}"$'
 
 [[file]]
-src = "py_logarex_monitor/__init__.py"
+src = "py_power_meter_monitor/__init__.py"
 search = '^__version__ = "{current_version}"$'

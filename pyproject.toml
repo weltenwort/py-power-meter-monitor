@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "py-logarex-monitor"
+name = "py-power-meter-monitor"
 version = "0.1.1"
 description = ""
 authors = ["Felix Stürmer <stuermer@weltenwort.de>"]
@@ -24,7 +24,7 @@ pytest-watch = "^4.2.0"
 pre-commit = "^2.11.1"
 
 [tool.poetry.scripts]
-py-logarex-monitor = "py_logarex_monitor.cli:app"
+py-power-meter-monitor = "py_power_meter_monitor.cli:app"
 
 [tool.black]
 disable = ["C0330", "C0326"]
