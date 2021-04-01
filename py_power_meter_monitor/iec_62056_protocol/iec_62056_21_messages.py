@@ -2,12 +2,12 @@ from abc import abstractmethod
 from asyncio.streams import StreamReader
 from dataclasses import dataclass
 from time import time
-from py_logarex_monitor.iec_62056_protocol.errors import ParsingError
 import re
 from typing import ClassVar, Optional, Type, TypeVar, Union
 
 from .block_check_character import get_block_check_character
 from .data_block import DataBlock
+from .errors import ParsingError
 
 
 MessageT = TypeVar("MessageT", bound="BaseMessage")

@@ -13,7 +13,7 @@ from .iec_62056_protocol.obis_data_set import (
 
 
 def load_default_configuration():
-    return PyLogarexMonitorConfig()
+    return PyPowerMeterMonitorConfig()
 
 
 def load_configuration_from_file_path(config_file_path: Path):
@@ -23,8 +23,8 @@ def load_configuration_from_file_path(config_file_path: Path):
     return load_configuration_from_text(config_file_path.read_text())
 
 
-def load_configuration_from_text(config_file_text: str) -> "PyLogarexMonitorConfig":
-    return PyLogarexMonitorConfig.parse_obj(dict(tomlkit.parse(config_file_text)))
+def load_configuration_from_text(config_file_text: str) -> "PyPowerMeterMonitorConfig":
+    return PyPowerMeterMonitorConfig.parse_obj(dict(tomlkit.parse(config_file_text)))
 
 
 class LoggingLevel(IntEnum):
@@ -76,9 +76,9 @@ class MqttBrokerConfig(BaseModel):
 
 
 class MqttDeviceConfig(BaseModel):
-    id: str = "logarex-power-meter-0"
-    name: str = "Logarex Power Meter 0"
-    manufacturer: str = "Logarex"
+    id: str = "power-meter-0"
+    name: str = "Power Meter 0"
+    manufacturer: str = "Unknown Manufacturer"
     model: str = "Unknown Model"
 
 
@@ -129,7 +129,7 @@ class ObisConfig(BaseModel):
     data_sets: List[ObisDataSetConfig] = []
 
 
-class PyLogarexMonitorConfig(BaseModel):
+class PyPowerMeterMonitorConfig(BaseModel):
     logging: LoggingConfig = LoggingConfig()
     serial_port: SerialPortConfig = SerialPortConfig()
     mqtt: MqttConfig = MqttConfig()
