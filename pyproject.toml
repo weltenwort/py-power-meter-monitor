@@ -4,7 +4,7 @@ version = "0.1.1"
 description = ""
 authors = ["Felix Stürmer <stuermer@weltenwort.de>"]
 license = "MIT"
-include = ["default-config.toml"]
+include = ["etc/default-config.toml", "etc/logarex-config.toml"]
 
 [tool.poetry.dependencies]
 python = "^3.9"

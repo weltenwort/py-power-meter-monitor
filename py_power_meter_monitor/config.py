@@ -55,9 +55,9 @@ class SerialPortStopBits(Enum):
 
 class SerialPortConfig(BaseModel):
     port_url: str = "/dev/ttyUSB0"
-    baud_rate: int = 9600
-    byte_size: int = 8
-    parity: SerialPortParity = SerialPortParity.NONE
+    baud_rate: int = 300
+    byte_size: int = 7
+    parity: SerialPortParity = SerialPortParity.EVEN
     stop_bits: SerialPortStopBits = SerialPortStopBits.ONE
     polling_delay: float = 30.0
     response_delay: float = 0.5
