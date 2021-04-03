@@ -1,14 +1,13 @@
+import re
 from abc import abstractmethod
 from asyncio.streams import StreamReader
 from dataclasses import dataclass
 from time import time
-import re
-from typing import ClassVar, Optional, Type, TypeVar, Union
+from typing import ClassVar, Type, TypeVar, Union
 
 from .block_check_character import get_block_check_character
 from .data_block import DataBlock
 from .errors import ParsingError
-
 
 MessageT = TypeVar("MessageT", bound="BaseMessage")
 
@@ -52,14 +51,11 @@ class RequestMessage(BaseMessage):
         return b"/?%s!%s" % (self.device_address.encode("utf-8"), self.terminator)
 
     @classmethod
-    def from_bytes(cls, timestamp: float, frame: bytes) -> Optional["RequestMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "RequestMessage":
         matches = cls.match_frame_or_raise(
             b"^/\\?(?P<device_address>[^!]*)!\r\n$",
             frame,
         )
-
-        if matches is None:
-            return None
 
         return cls(
             timestamp=timestamp,
@@ -82,16 +78,11 @@ class IdentificationMessage(BaseMessage):
         )
 
     @classmethod
-    def from_bytes(
-        cls, timestamp: float, frame: bytes
-    ) -> Optional["IdentificationMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "IdentificationMessage":
         matches = cls.match_frame_or_raise(
             b"^/(?P<manufacturer_id>\\w{3})(?P<baud_rate_id>[0-9A-Z])(?P<identification>[^\r\n]+)\r\n$",
             frame,
         )
-
-        if matches is None:
-            return None
 
         return cls(
             timestamp=timestamp,
@@ -116,16 +107,11 @@ class AcknowledgementMessage(BaseMessage):
         )
 
     @classmethod
-    def from_bytes(
-        cls, timestamp: float, frame: bytes
-    ) -> Optional["AcknowledgementMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "AcknowledgementMessage":
         matches = cls.match_frame_or_raise(
             b"^\x06(?P<protocol_control>\\d)(?P<baud_rate_id>[0-9A-Z])(?P<mode_control>[0-9A-Z])\r\n$",
             frame,
         )
-
-        if matches is None:
-            return None
 
         return cls(
             timestamp=timestamp,
@@ -147,21 +133,18 @@ class DataMessage(BaseMessage):
         return b"\x02%s%s" % (encoded_data, block_check_character)
 
     @classmethod
-    def from_bytes(cls, timestamp: float, frame: bytes) -> Optional["DataMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "DataMessage":
         matches = cls.match_frame_or_raise(
             b"^\x02(?P<data>[^!]*)!\r\n\x03(?P<block_check>.)$",
             frame,
         )
-
-        if matches is None:
-            return None
 
         block_check_character = get_block_check_character(
             b"%s!\r\n\x03" % matches.group("data")
         )
 
         if block_check_character != matches.group("block_check"):
-            return None
+            raise ParsingError(frame_type=cls, frame=frame)
 
         return cls(
             timestamp=timestamp,

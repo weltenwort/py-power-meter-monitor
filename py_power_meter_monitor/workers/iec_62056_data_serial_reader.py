@@ -1,26 +1,27 @@
+# pyright: reportUnnecessaryIsInstance=false
 import asyncio
 from asyncio.streams import StreamReader, StreamWriter
 from logging import getLogger
 
-
 from async_timeout import timeout
-
+from serial import Serial  # type: ignore
 
 from ..iec_62056_protocol.data_block import DataBlock
 from ..iec_62056_protocol.errors import Iec62056ProtocolError
 from ..iec_62056_protocol.mode_c_state_machine import (
     AwaitMessageEffect,
+    ChangeSpeedEffect,
     DataReadoutSuccessState,
     InitialState,
     ProtocolErrorState,
     ReceiveMessageEvent,
     ResetEffect,
-    SendMessageEffect,
     ResetEvent,
+    SendMessageEffect,
     get_next_state,
 )
+from ..iec_62056_protocol.transmission_speeds import mode_c_transmission_speeds
 from ..utils.publish_subscribe_topic import PublishSubscribeTopic
-
 
 logger = getLogger(__package__)
 
@@ -45,6 +46,7 @@ async def read_iec_62056_data_from_serial(
         try:
             # react to state change
             logger.debug(f"IEC 62056 state machine in state {current_state}")
+
             if isinstance(current_state, DataReadoutSuccessState):
                 topic.publish(current_state.data)
             elif isinstance(current_state, ProtocolErrorState):
@@ -53,6 +55,7 @@ async def read_iec_62056_data_from_serial(
             # execute effects
             for next_effect in next_effects:
                 logger.debug(f"IEC 62056 state machine evaluating effect {next_effect}")
+
                 if isinstance(next_effect, SendMessageEffect):
                     async with timeout(write_timeout):
                         serial_stream_writer.write(bytes(next_effect.message))
@@ -66,6 +69,12 @@ async def read_iec_62056_data_from_serial(
                 elif isinstance(next_effect, ResetEffect):
                     next_event = ResetEvent()
                     await asyncio.sleep(polling_delay)
+                elif isinstance(next_effect, ChangeSpeedEffect):
+                    serial = serial_stream_writer.get_extra_info("serial")
+                    new_speed = mode_c_transmission_speeds.get(next_effect.baud_rate_id)
+                    if isinstance(serial, Serial) and new_speed is not None:
+                        logger.debug(f"Switching serial baud rate to {new_speed}")
+                        serial.baudrate = new_speed
 
             await asyncio.sleep(response_delay)
         except Iec62056ProtocolError:

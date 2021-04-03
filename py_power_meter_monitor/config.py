@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel
-import tomlkit
+import tomlkit  # type: ignore (no stub)
 
 from .iec_62056_protocol.obis_data_set import (
     ObisFloatDataSet,
