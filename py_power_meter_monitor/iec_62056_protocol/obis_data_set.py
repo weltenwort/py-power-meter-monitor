@@ -75,7 +75,31 @@ ObisDataSet = Union[
 ]
 
 
-obis_id_expression = re.compile(r"^(\d+)-(\d+):(\d+)\.(\d+)\.(\d+)\*(\d+)$")
+obis_id_expression = re.compile(
+    r"""^
+    (?:
+        (?P<A>\d+)
+        -
+        (?P<B>\d+)
+        :
+    )?
+    (?P<C>\d+|[CFLP])
+    \.
+    (?P<D>\d+|[CFLP])
+    (?:
+        \.
+        (?P<E>\d+)
+        (?:
+            [*&.]
+            (?P<F>\d+)
+        )?
+    )?
+    $""",
+    re.X,
+)
+
+
+obis_id_groups = ("A", "B", "C", "D", "E", "F")
 
 
 def parse_obis_id_from_address(address: str) -> ObisId:
@@ -84,4 +108,26 @@ def parse_obis_id_from_address(address: str) -> ObisId:
     if matches is None:
         raise ValueError(f"Failed to parse {address} as an OBIS id.")
 
-    return tuple(int(group, 10) for group in matches.groups())
+    return (
+        parse_id_code(matches.group("A")),
+        parse_id_code(matches.group("B")),
+        parse_id_code(matches.group("C")),
+        parse_id_code(matches.group("D")),
+        parse_id_code(matches.group("E")),
+        parse_id_code(matches.group("F")),
+    )
+
+
+def parse_id_code(code: Optional[str]) -> int:
+    if code is None:
+        return 0
+    if code == "C":
+        return 96
+    elif code == "F":
+        return 97
+    elif code == "L":
+        return 98
+    elif code == "P":
+        return 99
+
+    return int(code, 10)

@@ -9,6 +9,8 @@ from .block_check_character import get_block_check_character
 from .data_block import DataBlock
 from .errors import ParsingError
 
+message_encoding = "iso-8859-1"
+
 MessageT = TypeVar("MessageT", bound="BaseMessage")
 
 
@@ -48,7 +50,10 @@ class RequestMessage(BaseMessage):
     device_address: str = ""
 
     def __bytes__(self) -> bytes:
-        return b"/?%s!%s" % (self.device_address.encode("utf-8"), self.terminator)
+        return b"/?%s!%s" % (
+            self.device_address.encode(message_encoding),
+            self.terminator,
+        )
 
     @classmethod
     def from_bytes(cls, timestamp: float, frame: bytes) -> "RequestMessage":
@@ -59,7 +64,9 @@ class RequestMessage(BaseMessage):
 
         return cls(
             timestamp=timestamp,
-            device_address=(matches.group("device_address") or b"").decode("utf-8"),
+            device_address=(matches.group("device_address") or b"").decode(
+                message_encoding
+            ),
         )
 
 
@@ -71,9 +78,9 @@ class IdentificationMessage(BaseMessage):
 
     def __bytes__(self) -> bytes:
         return b"/%s%s%s%s" % (
-            self.manufacturer_id.encode("utf-8")[:3],
-            self.baud_rate_id.encode("utf-8")[:1],
-            self.identification.encode("utf-8"),
+            self.manufacturer_id.encode(message_encoding)[:3],
+            self.baud_rate_id.encode(message_encoding)[:1],
+            self.identification.encode(message_encoding),
             self.terminator,
         )
 
@@ -86,9 +93,9 @@ class IdentificationMessage(BaseMessage):
 
         return cls(
             timestamp=timestamp,
-            manufacturer_id=matches.group("manufacturer_id").decode("utf-8"),
-            baud_rate_id=matches.group("baud_rate_id").decode("utf-8"),
-            identification=matches.group("identification").decode("utf-8"),
+            manufacturer_id=matches.group("manufacturer_id").decode(message_encoding),
+            baud_rate_id=matches.group("baud_rate_id").decode(message_encoding),
+            identification=matches.group("identification").decode(message_encoding),
         )
 
 
@@ -100,9 +107,9 @@ class AcknowledgementMessage(BaseMessage):
 
     def __bytes__(self) -> bytes:
         return b"\x06%s%s%s%s" % (
-            self.protocol_control.encode("utf-8")[:1],
-            self.baud_rate_id.encode("utf-8")[:1],
-            self.mode_control.encode("utf-8")[:1],
+            self.protocol_control.encode(message_encoding)[:1],
+            self.baud_rate_id.encode(message_encoding)[:1],
+            self.mode_control.encode(message_encoding)[:1],
             self.terminator,
         )
 
@@ -115,9 +122,15 @@ class AcknowledgementMessage(BaseMessage):
 
         return cls(
             timestamp=timestamp,
-            protocol_control=(matches.group("protocol_control") or b"").decode("utf-8"),
-            baud_rate_id=(matches.group("baud_rate_id") or b"").decode("utf-8"),
-            mode_control=(matches.group("mode_control") or b"").decode("utf-8"),
+            protocol_control=(matches.group("protocol_control") or b"").decode(
+                message_encoding
+            ),
+            baud_rate_id=(matches.group("baud_rate_id") or b"").decode(
+                message_encoding
+            ),
+            mode_control=(matches.group("mode_control") or b"").decode(
+                message_encoding
+            ),
         )
 
 
