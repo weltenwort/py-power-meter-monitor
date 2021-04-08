@@ -1,9 +1,12 @@
+from logging import getLogger
 import re
 from abc import abstractmethod
 from asyncio.streams import StreamReader
 from dataclasses import dataclass
 from time import time
-from typing import ClassVar, Type, TypeVar, Union
+from typing import ClassVar, Optional, Type, TypeVar, Union
+
+import async_timeout
 
 from .block_check_character import get_block_check_character
 from .data_block import DataBlock
@@ -13,10 +16,13 @@ message_encoding = "iso-8859-1"
 
 MessageT = TypeVar("MessageT", bound="BaseMessage")
 
+logger = getLogger(__package__)
+
 
 @dataclass
 class BaseMessage:
     timestamp: float
+    initiator: ClassVar[Optional[bytes]] = None
     terminator: ClassVar[bytes] = b"\r\n"
     extra_bytes_after_terminator: ClassVar[int] = 0
 
@@ -27,9 +33,22 @@ class BaseMessage:
 
     @classmethod
     async def read_from_stream(cls: Type[MessageT], reader: StreamReader) -> MessageT:
-        frame = await reader.readuntil(cls.terminator)
+        frame = b""
+        if cls.initiator is not None:
+            # drain the read buffer
+            try:
+                with async_timeout.timeout(30):
+                    logger.debug(f"Draining the read buffer up to {cls.initiator}")
+                    await reader.readuntil(cls.initiator)
+                    frame += cls.initiator
+            except BaseException:
+                logger.debug("Gave up on draining the read buffer")
+        logger.debug(f"Reading up to {cls.terminator}")
+        frame += await reader.readuntil(cls.terminator)
+        logger.debug(f"Reading {cls.extra_bytes_after_terminator} extra bytes")
         frame += await reader.readexactly(cls.extra_bytes_after_terminator)
         timestamp = time()
+        logger.debug(f"Finished reading at {timestamp}")
 
         return cls.from_bytes(timestamp=timestamp, frame=frame)
 
@@ -48,6 +67,7 @@ class BaseMessage:
 @dataclass
 class RequestMessage(BaseMessage):
     device_address: str = ""
+    initiator: ClassVar[bytes] = b"/"
 
     def __bytes__(self) -> bytes:
         return b"/?%s!%s" % (
@@ -76,9 +96,11 @@ class IdentificationMessage(BaseMessage):
     baud_rate_id: str
     mode_ids: str
     identification: str
+    initiator: ClassVar[bytes] = b"/"
 
     def __bytes__(self) -> bytes:
-        return b"/%s%s%s%s" % (
+        return b"%s%s%s%s%s%s" % (
+            self.initiator,
             self.manufacturer_id.encode(message_encoding)[:3],
             self.baud_rate_id.encode(message_encoding)[:1],
             self.mode_ids.encode(message_encoding),
@@ -107,9 +129,11 @@ class AcknowledgementMessage(BaseMessage):
     protocol_control: str
     baud_rate_id: str
     mode_control: str
+    initiator: ClassVar[bytes] = b"\x06"
 
     def __bytes__(self) -> bytes:
-        return b"\x06%s%s%s%s" % (
+        return b"%s%s%s%s%s" % (
+            self.initiator,
             self.protocol_control.encode(message_encoding)[:1],
             self.baud_rate_id.encode(message_encoding)[:1],
             self.mode_control.encode(message_encoding)[:1],
@@ -142,6 +166,7 @@ class DataMessage(BaseMessage):
     data: DataBlock
     terminator: ClassVar[bytes] = b"!\r\n\x03"
     extra_bytes_after_terminator: ClassVar[int] = 1
+    initiator: ClassVar[bytes] = b"\x02"
 
     def __bytes__(self) -> bytes:
         encoded_data = b"%s%s" % (bytes(self.data), self.terminator)
