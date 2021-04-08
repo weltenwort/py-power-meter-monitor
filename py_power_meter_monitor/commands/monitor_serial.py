@@ -1,7 +1,9 @@
+# pyright: reportUnknownMemberType=false
 import asyncio
+from logging import getLogger
 
-import asyncio_mqtt
-import serial_asyncio
+import asyncio_mqtt  # type: ignore
+import serial_asyncio  # type: ignore
 
 from ..config import MqttConfig, ObisConfig, SerialPortConfig
 from ..iec_62056_protocol.data_block import DataBlock
@@ -12,6 +14,8 @@ from ..workers.iec_62056_obis_data_set_logger import log_iec_62056_obis_data_set
 from ..workers.iec_62056_obis_data_set_mqtt_logger import (
     mqtt_log_iec_62056_obis_data_sets,
 )
+
+logger = getLogger(__package__)
 
 
 async def run_monitor_serial(
@@ -34,6 +38,10 @@ async def run_monitor_serial(
         stopbits=serial_config.stop_bits.value,
     )
 
+    logger.debug(
+        f"Opened serial connection {serial_config.port_url} with {serial_config.baud_rate} baud."
+    )
+
     async with async_closing(serial_writer):
         async with asyncio_mqtt.Client(
             hostname=mqtt_config.broker.hostname,
@@ -42,6 +50,12 @@ async def run_monitor_serial(
             password=mqtt_config.broker.password,
         ) as mqtt_client:
             await asyncio.gather(
+                mqtt_log_iec_62056_obis_data_sets(
+                    topic=data_blocks,
+                    mqtt_client=mqtt_client,
+                    mqtt_config=mqtt_config,
+                    obis_data_set_configs_by_id=obis_data_set_configs_by_id,
+                ),
                 read_iec_62056_data_from_serial(
                     topic=data_blocks,
                     serial_stream_reader=serial_reader,
@@ -50,12 +64,6 @@ async def run_monitor_serial(
                     response_delay=serial_config.response_delay,
                     read_timeout=serial_config.read_timeout,
                     write_timeout=serial_config.write_timeout,
-                ),
-                mqtt_log_iec_62056_obis_data_sets(
-                    topic=data_blocks,
-                    mqtt_client=mqtt_client,
-                    mqtt_config=mqtt_config,
-                    obis_data_set_configs_by_id=obis_data_set_configs_by_id,
                 ),
                 log_iec_62056_obis_data_sets(
                     topic=data_blocks,
