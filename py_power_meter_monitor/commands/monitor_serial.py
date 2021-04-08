@@ -60,6 +60,7 @@ async def run_monitor_serial(
                     topic=data_blocks,
                     serial_stream_reader=serial_reader,
                     serial_stream_writer=serial_writer,
+                    baud_rate=serial_config.baud_rate,
                     polling_delay=serial_config.polling_delay,
                     response_delay=serial_config.response_delay,
                     read_timeout=serial_config.read_timeout,

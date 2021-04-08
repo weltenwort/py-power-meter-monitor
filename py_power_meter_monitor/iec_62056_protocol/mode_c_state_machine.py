@@ -68,12 +68,21 @@ class ResetEffect:
 
 
 @dataclass
+class ResetSpeedEffect:
+    pass
+
+
+@dataclass
 class ChangeSpeedEffect:
     baud_rate_id: str
 
 
 ModeCEffect = Union[
-    SendMessageEffect, AwaitMessageEffect, ResetEffect, ChangeSpeedEffect
+    SendMessageEffect,
+    AwaitMessageEffect,
+    ResetEffect,
+    ResetSpeedEffect,
+    ChangeSpeedEffect,
 ]
 
 
@@ -84,6 +93,7 @@ def get_next_state(
         return (
             InitialState(),
             [
+                # ResetSpeedEffect(),
                 SendMessageEffect(message=RequestMessage(0)),
                 AwaitMessageEffect(message_type=IdentificationMessage),
             ],
@@ -97,15 +107,16 @@ def get_next_state(
                     identification=event.message.identification,
                 ),
                 [
+                    # ChangeSpeedEffect(baud_rate_id=event.message.baud_rate_id),
                     SendMessageEffect(
                         message=AcknowledgementMessage(
                             timestamp=0,
                             protocol_control="0",
-                            baud_rate_id=event.message.baud_rate_id,
+                            # baud_rate_id=event.message.baud_rate_id,
+                            baud_rate_id="0",
                             mode_control="0",
                         )
                     ),
-                    ChangeSpeedEffect(baud_rate_id=event.message.baud_rate_id),
                     AwaitMessageEffect(message_type=DataMessage),
                 ],
             )

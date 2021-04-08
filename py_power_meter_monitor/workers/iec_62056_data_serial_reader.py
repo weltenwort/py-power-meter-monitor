@@ -17,6 +17,7 @@ from ..iec_62056_protocol.mode_c_state_machine import (
     ReceiveMessageEvent,
     ResetEffect,
     ResetEvent,
+    ResetSpeedEffect,
     SendMessageEffect,
     get_next_state,
 )
@@ -30,6 +31,7 @@ async def read_iec_62056_data_from_serial(
     topic: PublishSubscribeTopic[DataBlock],
     serial_stream_reader: StreamReader,
     serial_stream_writer: StreamWriter,
+    baud_rate: int,
     polling_delay: float,
     response_delay: float,
     read_timeout: float,
@@ -69,6 +71,11 @@ async def read_iec_62056_data_from_serial(
                 elif isinstance(next_effect, ResetEffect):
                     next_event = ResetEvent()
                     await asyncio.sleep(polling_delay)
+                elif isinstance(next_effect, ResetSpeedEffect):
+                    serial = serial_stream_writer.get_extra_info("serial")
+                    if isinstance(serial, Serial):
+                        logger.debug(f"Resetting serial baud rate to {baud_rate}")
+                        serial.baudrate = baud_rate
                 elif isinstance(next_effect, ChangeSpeedEffect):
                     serial = serial_stream_writer.get_extra_info("serial")
                     new_speed = mode_c_transmission_speeds.get(next_effect.baud_rate_id)

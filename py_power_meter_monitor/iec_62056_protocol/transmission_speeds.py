@@ -7,3 +7,7 @@ mode_c_transmission_speeds: dict[str, int] = {
     "5": 9600,
     "6": 19200,
 }
+
+mode_c_transmission_ids = {
+    speed: identifier for identifier, speed in mode_c_transmission_speeds.items()
+}
