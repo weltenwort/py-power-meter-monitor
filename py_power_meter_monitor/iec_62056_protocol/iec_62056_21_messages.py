@@ -74,12 +74,14 @@ class RequestMessage(BaseMessage):
 class IdentificationMessage(BaseMessage):
     manufacturer_id: str
     baud_rate_id: str
+    mode_ids: str
     identification: str
 
     def __bytes__(self) -> bytes:
         return b"/%s%s%s%s" % (
             self.manufacturer_id.encode(message_encoding)[:3],
             self.baud_rate_id.encode(message_encoding)[:1],
+            self.mode_ids.encode(message_encoding),
             self.identification.encode(message_encoding),
             self.terminator,
         )
@@ -87,7 +89,7 @@ class IdentificationMessage(BaseMessage):
     @classmethod
     def from_bytes(cls, timestamp: float, frame: bytes) -> "IdentificationMessage":
         matches = cls.match_frame_or_raise(
-            b"^/(?P<manufacturer_id>\\w{3})(?P<baud_rate_id>[0-9A-Z])(?P<identification>[^\r\n]+)\r\n$",
+            b"^/(?P<manufacturer_id>\\w{3})(?P<baud_rate_id>[0-9A-Z])(?P<mode_ids>(?:\\\\[^\\\\/!])*)(?P<identification>[^\\/!\r\n]+)\r\n$",
             frame,
         )
 
@@ -95,6 +97,7 @@ class IdentificationMessage(BaseMessage):
             timestamp=timestamp,
             manufacturer_id=matches.group("manufacturer_id").decode(message_encoding),
             baud_rate_id=matches.group("baud_rate_id").decode(message_encoding),
+            mode_ids=matches.group("mode_ids").decode(message_encoding),
             identification=matches.group("identification").decode(message_encoding),
         )
 

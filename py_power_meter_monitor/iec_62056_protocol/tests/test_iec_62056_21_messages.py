@@ -15,6 +15,7 @@ def test_request_message_from_bytes():
     message = RequestMessage(timestamp=0)
 
     assert bytes(message) == frame
+    assert bytes(message).startswith(RequestMessage.initiator)
     assert RequestMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
@@ -28,13 +29,33 @@ def test_request_message_with_device_address():
     message = RequestMessage(timestamp=0, device_address="SOME_ADDRESS")
 
     assert bytes(message) == frame
+    assert bytes(message).startswith(RequestMessage.initiator)
     assert RequestMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
 def test_identification_message():
     frame = b"/LOG5LK123\r\n"
     message = IdentificationMessage(
-        timestamp=0, manufacturer_id="LOG", baud_rate_id="5", identification="LK123"
+        timestamp=0,
+        manufacturer_id="LOG",
+        baud_rate_id="5",
+        mode_ids="",
+        identification="LK123",
+    )
+
+    assert bytes(message) == frame
+    assert bytes(message).startswith(IdentificationMessage.initiator)
+    assert IdentificationMessage.from_bytes(timestamp=0, frame=frame) == message
+
+
+def test_identification_message_with_sequence_delimiter():
+    frame = b"/LGZ5\\2ZMD3104107.B40\r\n"
+    message = IdentificationMessage(
+        timestamp=0,
+        manufacturer_id="LGZ",
+        baud_rate_id="5",
+        mode_ids="\\2",
+        identification="ZMD3104107.B40",
     )
 
     assert bytes(message) == frame
@@ -48,6 +69,7 @@ def test_acknowledgement_message():
     )
 
     assert bytes(message) == frame
+    assert bytes(message).startswith(AcknowledgementMessage.initiator)
     assert AcknowledgementMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
@@ -58,6 +80,7 @@ def test_data_message():
     )
 
     assert bytes(message) == frame
+    assert bytes(message).startswith(DataMessage.initiator)
     assert DataMessage.from_bytes(timestamp=0, frame=frame) == message
 
 
