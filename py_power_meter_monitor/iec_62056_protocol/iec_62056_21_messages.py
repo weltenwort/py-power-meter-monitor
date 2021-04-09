@@ -43,11 +43,7 @@ class BaseMessage:
             try:
                 with async_timeout.timeout(30):
                     logger.debug(f"Draining the read buffer up to {cls.initiator}")
-                    drained_byte: bytes = b""
-                    while drained_byte != cls.initiator:
-                        drained_byte = await serial_port.read_async(1)
-                        logger.debug(f"Drained byte {drained_byte}")
-                    # await serial_port.read_until_async(cls.initiator)
+                    await serial_port.read_until_async(cls.initiator)
                     frame += cls.initiator
             except (asyncio.TimeoutError):
                 logger.debug("Gave up on draining the read buffer")

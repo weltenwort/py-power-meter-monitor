@@ -93,7 +93,6 @@ def get_next_state(
         return (
             InitialState(),
             [
-                ResetSpeedEffect(),
                 SendMessageEffect(message=RequestMessage(0)),
                 AwaitMessageEffect(message_type=IdentificationMessage),
             ],
@@ -112,7 +111,6 @@ def get_next_state(
                             timestamp=0,
                             protocol_control="0",
                             baud_rate_id=event.message.baud_rate_id,
-                            # baud_rate_id="0",
                             mode_control="0",
                         )
                     ),

@@ -59,6 +59,7 @@ async def read_iec_62056_data_from_serial(
                 if isinstance(next_effect, SendMessageEffect):
                     async with timeout(write_timeout):
                         await serial_port.write_async(bytes(next_effect.message))
+                    await asyncio.sleep(response_delay)
                 elif isinstance(next_effect, AwaitMessageEffect):
                     async with timeout(read_timeout):
                         message = await next_effect.message_type.read_from_serial_port(
@@ -66,24 +67,15 @@ async def read_iec_62056_data_from_serial(
                         )
                         next_event = ReceiveMessageEvent(message=message)
                 elif isinstance(next_effect, ResetEffect):
+                    switch_baud_rate(serial_port=serial_port, baud_rate=baud_rate)
                     next_event = ResetEvent()
                     await asyncio.sleep(polling_delay)
                 elif isinstance(next_effect, ResetSpeedEffect):
-                    logger.debug(f"Resetting serial baud rate to {baud_rate}")
-                    # serial_port.baudrate = baud_rate
-                    reopen_with_baudrate(serial_port=serial_port, baudrate=baud_rate)
+                    switch_baud_rate(serial_port=serial_port, baud_rate=baud_rate)
                 elif isinstance(next_effect, ChangeSpeedEffect):
                     new_speed = mode_c_transmission_speeds.get(next_effect.baud_rate_id)
-                    logger.debug(f"Switching serial baud rate to {new_speed}")
                     if isinstance(new_speed, int):
-                        # serial_port.baudrate = new_speed
-                        await asyncio.sleep(0.2)
-                        reopen_with_baudrate(
-                            serial_port=serial_port, baudrate=new_speed
-                        )
-                        await asyncio.sleep(0.2)
-
-            await asyncio.sleep(response_delay)
+                        switch_baud_rate(serial_port=serial_port, baud_rate=new_speed)
         except Iec62056ProtocolError:
             logger.exception(f"Protocol error in state {current_state}")
             next_event = ResetEvent()
@@ -94,8 +86,7 @@ async def read_iec_62056_data_from_serial(
             await asyncio.sleep(polling_delay)
 
 
-def reopen_with_baudrate(serial_port: AioSerial, baudrate: int):
+def switch_baud_rate(serial_port: AioSerial, baud_rate: int):
+    logger.debug(f"Switching serial baud rate to {baud_rate}")
     serial_port.flush()
-    serial_port.close()
-    serial_port.baudrate = baudrate
-    serial_port.open()
+    serial_port.baudrate = baud_rate
