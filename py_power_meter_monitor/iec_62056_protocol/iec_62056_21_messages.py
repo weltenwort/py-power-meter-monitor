@@ -1,3 +1,4 @@
+import asyncio
 from logging import getLogger
 import re
 from abc import abstractmethod
@@ -6,6 +7,7 @@ from dataclasses import dataclass
 from time import time
 from typing import ClassVar, Optional, Type, TypeVar, Union
 
+from aioserial import AioSerial  # type: ignore
 import async_timeout
 
 from .block_check_character import get_block_check_character
@@ -30,6 +32,33 @@ class BaseMessage:
     @abstractmethod
     def from_bytes(cls: Type[MessageT], timestamp: float, frame: bytes) -> MessageT:
         raise NotImplementedError()
+
+    @classmethod
+    async def read_from_serial_port(
+        cls: Type[MessageT], serial_port: AioSerial
+    ) -> MessageT:
+        frame = b""
+        if cls.initiator is not None:
+            # drain the read buffer
+            try:
+                with async_timeout.timeout(30):
+                    logger.debug(f"Draining the read buffer up to {cls.initiator}")
+                    drained_byte: bytes = b""
+                    while drained_byte != cls.initiator:
+                        drained_byte = await serial_port.read_async(1)
+                        logger.debug(f"Drained byte {drained_byte}")
+                    # await serial_port.read_until_async(cls.initiator)
+                    frame += cls.initiator
+            except (asyncio.TimeoutError):
+                logger.debug("Gave up on draining the read buffer")
+        logger.debug(f"Reading up to {cls.terminator}")
+        frame += await serial_port.read_until_async(cls.terminator)
+        logger.debug(f"Reading {cls.extra_bytes_after_terminator} extra bytes")
+        frame += await serial_port.read_async(cls.extra_bytes_after_terminator)
+        timestamp = time()
+        logger.debug(f"Finished reading at {timestamp}")
+
+        return cls.from_bytes(timestamp=timestamp, frame=frame)
 
     @classmethod
     async def read_from_stream(cls: Type[MessageT], reader: StreamReader) -> MessageT:

@@ -1,10 +1,9 @@
 # pyright: reportUnnecessaryIsInstance=false
 import asyncio
-from asyncio.streams import StreamReader, StreamWriter
 from logging import getLogger
 
+from aioserial import AioSerial  # type: ignore
 from async_timeout import timeout
-from serial import Serial  # type: ignore
 
 from ..iec_62056_protocol.data_block import DataBlock
 from ..iec_62056_protocol.errors import Iec62056ProtocolError
@@ -29,8 +28,7 @@ logger = getLogger(__package__)
 
 async def read_iec_62056_data_from_serial(
     topic: PublishSubscribeTopic[DataBlock],
-    serial_stream_reader: StreamReader,
-    serial_stream_writer: StreamWriter,
+    serial_port: AioSerial,
     baud_rate: int,
     polling_delay: float,
     response_delay: float,
@@ -60,28 +58,30 @@ async def read_iec_62056_data_from_serial(
 
                 if isinstance(next_effect, SendMessageEffect):
                     async with timeout(write_timeout):
-                        serial_stream_writer.write(bytes(next_effect.message))
-                        await serial_stream_writer.drain()
+                        await serial_port.write_async(bytes(next_effect.message))
                 elif isinstance(next_effect, AwaitMessageEffect):
                     async with timeout(read_timeout):
-                        message = await next_effect.message_type.read_from_stream(
-                            serial_stream_reader
+                        message = await next_effect.message_type.read_from_serial_port(
+                            serial_port
                         )
                         next_event = ReceiveMessageEvent(message=message)
                 elif isinstance(next_effect, ResetEffect):
                     next_event = ResetEvent()
                     await asyncio.sleep(polling_delay)
                 elif isinstance(next_effect, ResetSpeedEffect):
-                    serial = serial_stream_writer.get_extra_info("serial")
-                    if isinstance(serial, Serial):
-                        logger.debug(f"Resetting serial baud rate to {baud_rate}")
-                        serial.baudrate = baud_rate
+                    logger.debug(f"Resetting serial baud rate to {baud_rate}")
+                    # serial_port.baudrate = baud_rate
+                    reopen_with_baudrate(serial_port=serial_port, baudrate=baud_rate)
                 elif isinstance(next_effect, ChangeSpeedEffect):
-                    serial = serial_stream_writer.get_extra_info("serial")
                     new_speed = mode_c_transmission_speeds.get(next_effect.baud_rate_id)
-                    if isinstance(serial, Serial) and new_speed is not None:
-                        logger.debug(f"Switching serial baud rate to {new_speed}")
-                        serial.baudrate = new_speed
+                    logger.debug(f"Switching serial baud rate to {new_speed}")
+                    if isinstance(new_speed, int):
+                        # serial_port.baudrate = new_speed
+                        await asyncio.sleep(0.2)
+                        reopen_with_baudrate(
+                            serial_port=serial_port, baudrate=new_speed
+                        )
+                        await asyncio.sleep(0.2)
 
             await asyncio.sleep(response_delay)
         except Iec62056ProtocolError:
@@ -92,3 +92,10 @@ async def read_iec_62056_data_from_serial(
             logger.exception(f"Error in state {current_state}")
             next_event = ResetEvent()
             await asyncio.sleep(polling_delay)
+
+
+def reopen_with_baudrate(serial_port: AioSerial, baudrate: int):
+    serial_port.flush()
+    serial_port.close()
+    serial_port.baudrate = baudrate
+    serial_port.open()
