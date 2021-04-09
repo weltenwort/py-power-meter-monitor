@@ -328,17 +328,6 @@ python-versions = "*"
 cp2110 = ["hidapi"]
 
 [[package]]
-name = "pyserial-asyncio"
-version = "0.5"
-description = "Python Serial Port Extension - Asynchronous I/O support"
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-pyserial = "*"
-
-[[package]]
 name = "pytest"
 version = "6.2.2"
 description = "pytest: simple powerful testing with Python"
@@ -500,7 +489,7 @@ watchmedo = ["PyYAML (>=3.10)", "argh (>=0.24.1)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "1f737dd7207a171c7e8c36071f5103110e35b52fff2b5c22da164f51b0432826"
+content-hash = "a6eb4d065be79476eee7b0ab6695cf895130c569a463ecf0eaafae8ff186497d"
 
 [metadata.files]
 aioserial = [
@@ -643,10 +632,6 @@ pyparsing = [
 pyserial = [
     {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
     {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
-]
-pyserial-asyncio = [
-    {file = "pyserial-asyncio-0.5.tar.gz", hash = "sha256:1641e5433a866eeaf6464b3ab88b741e7a89dd8cd0f851b3343b15f425138d33"},
-    {file = "pyserial_asyncio-0.5-py3-none-any.whl", hash = "sha256:4cf1e97d92ae239fe104d76a3a42074c771b7da17ed89aea3c0251c16c950d3e"},
 ]
 pytest = [
     {file = "pytest-6.2.2-py3-none-any.whl", hash = "sha256:b574b57423e818210672e07ca1fa90aaf194a4f63f3ab909a2c67ebb22913839"},
