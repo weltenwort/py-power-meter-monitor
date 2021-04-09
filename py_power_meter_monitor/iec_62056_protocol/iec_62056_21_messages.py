@@ -1,21 +1,30 @@
+import asyncio
+from logging import getLogger
+import re
 from abc import abstractmethod
 from asyncio.streams import StreamReader
 from dataclasses import dataclass
 from time import time
-import re
 from typing import ClassVar, Optional, Type, TypeVar, Union
+
+from aioserial import AioSerial  # type: ignore
+import async_timeout
 
 from .block_check_character import get_block_check_character
 from .data_block import DataBlock
 from .errors import ParsingError
 
+message_encoding = "iso-8859-1"
 
 MessageT = TypeVar("MessageT", bound="BaseMessage")
+
+logger = getLogger(__package__)
 
 
 @dataclass
 class BaseMessage:
     timestamp: float
+    initiator: ClassVar[Optional[bytes]] = None
     terminator: ClassVar[bytes] = b"\r\n"
     extra_bytes_after_terminator: ClassVar[int] = 0
 
@@ -25,10 +34,46 @@ class BaseMessage:
         raise NotImplementedError()
 
     @classmethod
+    async def read_from_serial_port(
+        cls: Type[MessageT], serial_port: AioSerial
+    ) -> MessageT:
+        frame = b""
+        if cls.initiator is not None:
+            # drain the read buffer
+            try:
+                with async_timeout.timeout(30):
+                    logger.debug(f"Draining the read buffer up to {cls.initiator}")
+                    await serial_port.read_until_async(cls.initiator)
+                    frame += cls.initiator
+            except (asyncio.TimeoutError):
+                logger.debug("Gave up on draining the read buffer")
+        logger.debug(f"Reading up to {cls.terminator}")
+        frame += await serial_port.read_until_async(cls.terminator)
+        logger.debug(f"Reading {cls.extra_bytes_after_terminator} extra bytes")
+        frame += await serial_port.read_async(cls.extra_bytes_after_terminator)
+        timestamp = time()
+        logger.debug(f"Finished reading at {timestamp}")
+
+        return cls.from_bytes(timestamp=timestamp, frame=frame)
+
+    @classmethod
     async def read_from_stream(cls: Type[MessageT], reader: StreamReader) -> MessageT:
-        frame = await reader.readuntil(cls.terminator)
+        frame = b""
+        if cls.initiator is not None:
+            # drain the read buffer
+            try:
+                with async_timeout.timeout(30):
+                    logger.debug(f"Draining the read buffer up to {cls.initiator}")
+                    await reader.readuntil(cls.initiator)
+                    frame += cls.initiator
+            except BaseException:
+                logger.debug("Gave up on draining the read buffer")
+        logger.debug(f"Reading up to {cls.terminator}")
+        frame += await reader.readuntil(cls.terminator)
+        logger.debug(f"Reading {cls.extra_bytes_after_terminator} extra bytes")
         frame += await reader.readexactly(cls.extra_bytes_after_terminator)
         timestamp = time()
+        logger.debug(f"Finished reading at {timestamp}")
 
         return cls.from_bytes(timestamp=timestamp, frame=frame)
 
@@ -47,23 +92,26 @@ class BaseMessage:
 @dataclass
 class RequestMessage(BaseMessage):
     device_address: str = ""
+    initiator: ClassVar[bytes] = b"/"
 
     def __bytes__(self) -> bytes:
-        return b"/?%s!%s" % (self.device_address.encode("utf-8"), self.terminator)
+        return b"/?%s!%s" % (
+            self.device_address.encode(message_encoding),
+            self.terminator,
+        )
 
     @classmethod
-    def from_bytes(cls, timestamp: float, frame: bytes) -> Optional["RequestMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "RequestMessage":
         matches = cls.match_frame_or_raise(
             b"^/\\?(?P<device_address>[^!]*)!\r\n$",
             frame,
         )
 
-        if matches is None:
-            return None
-
         return cls(
             timestamp=timestamp,
-            device_address=(matches.group("device_address") or b"").decode("utf-8"),
+            device_address=(matches.group("device_address") or b"").decode(
+                message_encoding
+            ),
         )
 
 
@@ -71,33 +119,33 @@ class RequestMessage(BaseMessage):
 class IdentificationMessage(BaseMessage):
     manufacturer_id: str
     baud_rate_id: str
+    mode_ids: str
     identification: str
+    initiator: ClassVar[bytes] = b"/"
 
     def __bytes__(self) -> bytes:
-        return b"/%s%s%s%s" % (
-            self.manufacturer_id.encode("utf-8")[:3],
-            self.baud_rate_id.encode("utf-8")[:1],
-            self.identification.encode("utf-8"),
+        return b"%s%s%s%s%s%s" % (
+            self.initiator,
+            self.manufacturer_id.encode(message_encoding)[:3],
+            self.baud_rate_id.encode(message_encoding)[:1],
+            self.mode_ids.encode(message_encoding),
+            self.identification.encode(message_encoding),
             self.terminator,
         )
 
     @classmethod
-    def from_bytes(
-        cls, timestamp: float, frame: bytes
-    ) -> Optional["IdentificationMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "IdentificationMessage":
         matches = cls.match_frame_or_raise(
-            b"^/(?P<manufacturer_id>\\w{3})(?P<baud_rate_id>[0-9A-Z])(?P<identification>[^\r\n]+)\r\n$",
+            b"^/(?P<manufacturer_id>\\w{3})(?P<baud_rate_id>[0-9A-Z])(?P<mode_ids>(?:\\\\[^\\\\/!])*)(?P<identification>[^\\/!\r\n]+)\r\n$",
             frame,
         )
 
-        if matches is None:
-            return None
-
         return cls(
             timestamp=timestamp,
-            manufacturer_id=matches.group("manufacturer_id").decode("utf-8"),
-            baud_rate_id=matches.group("baud_rate_id").decode("utf-8"),
-            identification=matches.group("identification").decode("utf-8"),
+            manufacturer_id=matches.group("manufacturer_id").decode(message_encoding),
+            baud_rate_id=matches.group("baud_rate_id").decode(message_encoding),
+            mode_ids=matches.group("mode_ids").decode(message_encoding),
+            identification=matches.group("identification").decode(message_encoding),
         )
 
 
@@ -106,32 +154,35 @@ class AcknowledgementMessage(BaseMessage):
     protocol_control: str
     baud_rate_id: str
     mode_control: str
+    initiator: ClassVar[bytes] = b"\x06"
 
     def __bytes__(self) -> bytes:
-        return b"\x06%s%s%s%s" % (
-            self.protocol_control.encode("utf-8")[:1],
-            self.baud_rate_id.encode("utf-8")[:1],
-            self.mode_control.encode("utf-8")[:1],
+        return b"%s%s%s%s%s" % (
+            self.initiator,
+            self.protocol_control.encode(message_encoding)[:1],
+            self.baud_rate_id.encode(message_encoding)[:1],
+            self.mode_control.encode(message_encoding)[:1],
             self.terminator,
         )
 
     @classmethod
-    def from_bytes(
-        cls, timestamp: float, frame: bytes
-    ) -> Optional["AcknowledgementMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "AcknowledgementMessage":
         matches = cls.match_frame_or_raise(
             b"^\x06(?P<protocol_control>\\d)(?P<baud_rate_id>[0-9A-Z])(?P<mode_control>[0-9A-Z])\r\n$",
             frame,
         )
 
-        if matches is None:
-            return None
-
         return cls(
             timestamp=timestamp,
-            protocol_control=(matches.group("protocol_control") or b"").decode("utf-8"),
-            baud_rate_id=(matches.group("baud_rate_id") or b"").decode("utf-8"),
-            mode_control=(matches.group("mode_control") or b"").decode("utf-8"),
+            protocol_control=(matches.group("protocol_control") or b"").decode(
+                message_encoding
+            ),
+            baud_rate_id=(matches.group("baud_rate_id") or b"").decode(
+                message_encoding
+            ),
+            mode_control=(matches.group("mode_control") or b"").decode(
+                message_encoding
+            ),
         )
 
 
@@ -140,6 +191,7 @@ class DataMessage(BaseMessage):
     data: DataBlock
     terminator: ClassVar[bytes] = b"!\r\n\x03"
     extra_bytes_after_terminator: ClassVar[int] = 1
+    initiator: ClassVar[bytes] = b"\x02"
 
     def __bytes__(self) -> bytes:
         encoded_data = b"%s%s" % (bytes(self.data), self.terminator)
@@ -147,21 +199,18 @@ class DataMessage(BaseMessage):
         return b"\x02%s%s" % (encoded_data, block_check_character)
 
     @classmethod
-    def from_bytes(cls, timestamp: float, frame: bytes) -> Optional["DataMessage"]:
+    def from_bytes(cls, timestamp: float, frame: bytes) -> "DataMessage":
         matches = cls.match_frame_or_raise(
             b"^\x02(?P<data>[^!]*)!\r\n\x03(?P<block_check>.)$",
             frame,
         )
-
-        if matches is None:
-            return None
 
         block_check_character = get_block_check_character(
             b"%s!\r\n\x03" % matches.group("data")
         )
 
         if block_check_character != matches.group("block_check"):
-            return None
+            raise ParsingError(frame_type=cls, frame=frame)
 
         return cls(
             timestamp=timestamp,

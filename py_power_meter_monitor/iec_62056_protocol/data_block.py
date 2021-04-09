@@ -2,6 +2,25 @@ from dataclasses import dataclass, replace
 import re
 from typing import Optional
 
+data_set_encoding = "iso-8859-1"
+
+data_set_expression = re.compile(
+    rb"""^
+            (?P<address>[^(]+)
+            \(
+                (?P<value>[^()*/!]{1,32})?
+                (?:\*(?P<unit>[^()/!]{1,16}))?
+            \)
+            (?:
+                \(
+                    (?:[^()*/!]{1,32})?
+                    (?:\*[^()/!]{1,16})?
+                \)
+            )*
+            $""",
+    re.X,
+)
+
 
 @dataclass
 class DataSet:
@@ -12,21 +31,18 @@ class DataSet:
 
     def __bytes__(self) -> bytes:
         return b"%s(%s%s)" % (
-            self.address.encode("utf-8"),
-            self.value.encode("utf-8") if self.value else b"",
-            b"*%s" % (self.unit.encode("utf-8")) if self.unit else b"",
+            self.address.encode(data_set_encoding),
+            self.value.encode(data_set_encoding) if self.value else b"",
+            b"*%s" % (self.unit.encode(data_set_encoding)) if self.unit else b"",
         )
 
     @classmethod
     def from_bytes(cls, timestamp: float, line: bytes) -> "DataSet":
-        matches = re.match(
-            b"^(?P<address>[^(]+)\\((?P<value>[^()*/!]{0,32})?(?:\\*(?P<unit>[^()/!]{0,16}))?\\)$",
-            line,
-        )
+        matches = data_set_expression.match(line)
 
         if matches is None:
             raise ValueError(
-                f"Failed to parse line into DataSet: {line.decode('utf-8')}"
+                f"Failed to parse line into DataSet: {line.decode(data_set_encoding)}"
             )
 
         match_value = matches.group("value")
@@ -34,9 +50,13 @@ class DataSet:
 
         return cls(
             timestamp=timestamp,
-            address=matches.group("address").decode("utf-8"),
-            value=match_value.decode("utf-8") if match_value is not None else None,
-            unit=match_unit.decode("utf-8") if match_unit is not None else None,
+            address=matches.group("address").decode(data_set_encoding),
+            value=match_value.decode(data_set_encoding)
+            if match_value is not None
+            else None,
+            unit=match_unit.decode(data_set_encoding)
+            if match_unit is not None
+            else None,
         )
 
 

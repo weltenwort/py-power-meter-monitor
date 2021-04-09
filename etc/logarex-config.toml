@@ -1,0 +1,115 @@
+[logging]
+level = 40 # error level (see built-in python logging levels)
+
+[mqtt]
+enabled = true
+configuration_topic_template = "homeassistant/sensor/{entity_id}/config"
+state_topic_template = "homeassistant/sensor/{entity_id}/state"
+
+[mqtt.broker]
+hostname = "localhost"
+port = 1883
+
+[mqtt.device]
+id = "power-meter-0"
+name = "Power Meter 0"
+manufacturer = "Logarex"
+model = "Unknown Model"
+
+[serial_port]
+port_url = "/dev/ttyUSB0"
+baud_rate = 9600
+byte_size = 8
+parity = N
+
+[obis]
+
+[[obis.data_sets]]
+id = [1, 0, 96, 1, 0, 255]
+name = "Meter Id"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 0, 0, 2, 0, 255]
+name = "Meter Program Version"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 0, 97, 97, 0, 255]
+name = "Meter Error Flags"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 0, 1, 8, 0, 255]
+name = "Positive Active Power Integral Total"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 2, 8, 0, 255]
+name = "Negative Active Power Integral Total"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 16, 7, 0, 255]
+name = "Sum Active Power Instantaneous Total"
+value_type = "integer"
+
+[[obis.data_sets]]
+id = [1, 0, 32, 7, 0, 255]
+name = "Voltage Instantaneous L1"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 52, 7, 0, 255]
+name = "Voltage Instantaneous L2"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 72, 7, 0, 255]
+name = "Voltage Instantaneous L3"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 31, 7, 0, 255]
+name = "Current Instantaneous L1"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 51, 7, 0, 255]
+name = "Current Instantaneous L2"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 71, 7, 0, 255]
+name = "Current Instantaneous L3"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 14, 7, 0, 255]
+name = "Frequency Instantaneous"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 1, 8, 0, 96]
+name = "Positive Active Power Integral Last Day"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 1, 8, 0, 97]
+name = "Positive Active Power Integral Last Week"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 1, 8, 0, 98]
+name = "Positive Active Power Integral Last Month"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 1, 8, 0, 99]
+name = "Positive Active Power Integral Last Year"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 0, 1, 8, 0, 100]
+name = "Positive Active Power Integral Since Reset"
+value_type = "float"

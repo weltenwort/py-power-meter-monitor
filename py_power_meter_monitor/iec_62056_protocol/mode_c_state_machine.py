@@ -1,3 +1,4 @@
+# pyright: reportUnnecessaryIsInstance=false
 from dataclasses import dataclass
 from typing import Tuple, Type, Union
 
@@ -66,7 +67,23 @@ class ResetEffect:
     pass
 
 
-ModeCEffect = Union[SendMessageEffect, AwaitMessageEffect, ResetEffect]
+@dataclass
+class ResetSpeedEffect:
+    pass
+
+
+@dataclass
+class ChangeSpeedEffect:
+    baud_rate_id: str
+
+
+ModeCEffect = Union[
+    SendMessageEffect,
+    AwaitMessageEffect,
+    ResetEffect,
+    ResetSpeedEffect,
+    ChangeSpeedEffect,
+]
 
 
 def get_next_state(
@@ -80,7 +97,7 @@ def get_next_state(
                 AwaitMessageEffect(message_type=IdentificationMessage),
             ],
         )
-    elif isinstance(state, InitialState) and isinstance(event, ReceiveMessageEvent):
+    elif isinstance(state, InitialState):
         if isinstance(event.message, IdentificationMessage):
             return (
                 IdentifiedState(
@@ -97,6 +114,7 @@ def get_next_state(
                             mode_control="0",
                         )
                     ),
+                    ChangeSpeedEffect(baud_rate_id=event.message.baud_rate_id),
                     AwaitMessageEffect(message_type=DataMessage),
                 ],
             )
@@ -107,7 +125,7 @@ def get_next_state(
                 ),
                 [ResetEffect()],
             )
-    elif isinstance(state, IdentifiedState) and isinstance(event, ReceiveMessageEvent):
+    elif isinstance(state, IdentifiedState):
         if isinstance(event.message, DataMessage):
             return (
                 DataReadoutSuccessState(

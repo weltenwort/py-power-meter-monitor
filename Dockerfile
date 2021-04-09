@@ -9,9 +9,10 @@ FROM base as build
 ADD --chown=py-power-meter-monitor https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py ./
 RUN python get-poetry.py
 
-RUN mkdir -p src/py_power-meter_monitor
+RUN mkdir -p src/py_power-meter_monitor src/etc
+COPY poetry.lock pyproject.toml ./src/
+COPY etc ./src/etc/
 COPY py_power_meter_monitor ./src/py_power_meter_monitor/
-COPY poetry.lock pyproject.toml default-config.toml ./src/
 RUN cd ./src \
   && ~/.poetry/bin/poetry build --format wheel
 

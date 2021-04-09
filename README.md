@@ -19,7 +19,8 @@ A bridge between the serial interface (RS485 or infrared) of certain power meter
 
 This is intended to be deployed on a device that has a physical serial connection to a power meter manufactured. It has only been tested with the following models:
 
-- [Logarex]: LK13BE803039
+- [Landis-Gyr]: ZMD3104107.B40 using the configuration file `etc/default-config.toml`
+- [Logarex]: LK13BE803039 using the configuration file `etc/logarex-config.toml`
 
 Please contribute experiences with this or other models in an [issue].
 
@@ -62,6 +63,7 @@ Small note: If editing the Readme, please conform to the [standard-readme](https
 [MIT](LICENSE)
 
 
+[Landis-Gyr]: https://www.landisgyr.com/
 [Logarex]: http://www.logarex.cz/en/homepage
 [issue]: https://github.com/weltenwort/py-power-meter-monitor/issues/new
 [poetry]: https://python-poetry.org/

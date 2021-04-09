@@ -18,6 +18,9 @@ model = "Unknown Model"
 
 [serial_port]
 port_url = "/dev/ttyUSB0"
+baud_rate = 300
+byte_size = 7
+parity = E
 
 [obis]
 
