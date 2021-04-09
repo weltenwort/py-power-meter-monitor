@@ -60,8 +60,8 @@ class SerialPortConfig(BaseModel):
     parity: SerialPortParity = SerialPortParity.EVEN
     stop_bits: SerialPortStopBits = SerialPortStopBits.ONE
     polling_delay: float = 30.0
-    response_delay: float = 0.5
-    read_timeout: float = 10.0
+    response_delay: float = 0.3
+    read_timeout: float = 30.0
     write_timeout: float = 10.0
 
     class Config:
