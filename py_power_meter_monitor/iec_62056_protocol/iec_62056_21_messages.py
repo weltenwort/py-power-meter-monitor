@@ -1,14 +1,14 @@
 import asyncio
-from logging import getLogger
 import re
 from abc import abstractmethod
 from asyncio.streams import StreamReader
 from dataclasses import dataclass
+from logging import getLogger
 from time import time
-from typing import ClassVar, Optional, Type, TypeVar, Union
+from typing import ClassVar, Optional, Pattern, Type, TypeVar, Union
 
-from aioserial import AioSerial  # type: ignore
 import async_timeout
+from aioserial import AioSerial  # type: ignore
 
 from .block_check_character import get_block_check_character
 from .data_block import DataBlock
@@ -79,9 +79,9 @@ class BaseMessage:
 
     @classmethod
     def match_frame_or_raise(
-        cls: Type[MessageT], expression: bytes, frame: bytes
+        cls: Type[MessageT], expression: re.Pattern[bytes], frame: bytes
     ) -> re.Match[bytes]:
-        matches = re.match(expression, frame)
+        matches = expression.match(frame)
 
         if matches is None:
             raise ParsingError(frame_type=cls, frame=frame)
@@ -94,6 +94,10 @@ class RequestMessage(BaseMessage):
     device_address: str = ""
     initiator: ClassVar[bytes] = b"/"
 
+    frame_expression: ClassVar[Pattern[bytes]] = re.compile(
+        b"\\A/\\?(?P<device_address>[^!]*)!\r\n\\Z", re.DOTALL
+    )
+
     def __bytes__(self) -> bytes:
         return b"/?%s!%s" % (
             self.device_address.encode(message_encoding),
@@ -103,7 +107,7 @@ class RequestMessage(BaseMessage):
     @classmethod
     def from_bytes(cls, timestamp: float, frame: bytes) -> "RequestMessage":
         matches = cls.match_frame_or_raise(
-            b"^/\\?(?P<device_address>[^!]*)!\r\n$",
+            cls.frame_expression,
             frame,
         )
 
@@ -123,6 +127,18 @@ class IdentificationMessage(BaseMessage):
     identification: str
     initiator: ClassVar[bytes] = b"/"
 
+    frame_expression: ClassVar[Pattern[bytes]] = re.compile(
+        (
+            b"\\A"
+            b"/(?P<manufacturer_id>\\w{3})"
+            b"(?P<baud_rate_id>[0-9A-Z])"
+            b"(?P<mode_ids>(?:\\\\[^\\\\/!])*)"
+            b"(?P<identification>[^\\/!\r\n]+)"
+            b"\r\n\\Z"
+        ),
+        re.DOTALL,
+    )
+
     def __bytes__(self) -> bytes:
         return b"%s%s%s%s%s%s" % (
             self.initiator,
@@ -136,7 +152,7 @@ class IdentificationMessage(BaseMessage):
     @classmethod
     def from_bytes(cls, timestamp: float, frame: bytes) -> "IdentificationMessage":
         matches = cls.match_frame_or_raise(
-            b"^/(?P<manufacturer_id>\\w{3})(?P<baud_rate_id>[0-9A-Z])(?P<mode_ids>(?:\\\\[^\\\\/!])*)(?P<identification>[^\\/!\r\n]+)\r\n$",
+            cls.frame_expression,
             frame,
         )
 
@@ -156,6 +172,17 @@ class AcknowledgementMessage(BaseMessage):
     mode_control: str
     initiator: ClassVar[bytes] = b"\x06"
 
+    frame_expression: ClassVar[Pattern[bytes]] = re.compile(
+        (
+            b"\\A"
+            b"\x06(?P<protocol_control>\\d)"
+            b"(?P<baud_rate_id>[0-9A-Z])"
+            b"(?P<mode_control>[0-9A-Z])"
+            b"\r\n\\Z"
+        ),
+        re.DOTALL,
+    )
+
     def __bytes__(self) -> bytes:
         return b"%s%s%s%s%s" % (
             self.initiator,
@@ -168,7 +195,7 @@ class AcknowledgementMessage(BaseMessage):
     @classmethod
     def from_bytes(cls, timestamp: float, frame: bytes) -> "AcknowledgementMessage":
         matches = cls.match_frame_or_raise(
-            b"^\x06(?P<protocol_control>\\d)(?P<baud_rate_id>[0-9A-Z])(?P<mode_control>[0-9A-Z])\r\n$",
+            cls.frame_expression,
             frame,
         )
 
@@ -193,6 +220,10 @@ class DataMessage(BaseMessage):
     extra_bytes_after_terminator: ClassVar[int] = 1
     initiator: ClassVar[bytes] = b"\x02"
 
+    frame_expression: ClassVar[Pattern[bytes]] = re.compile(
+        b"\\A\x02(?P<data>[^!]*)!\r\n\x03(?P<block_check>.)\\Z", re.DOTALL
+    )
+
     def __bytes__(self) -> bytes:
         encoded_data = b"%s%s" % (bytes(self.data), self.terminator)
         block_check_character = get_block_check_character(encoded_data)
@@ -201,7 +232,7 @@ class DataMessage(BaseMessage):
     @classmethod
     def from_bytes(cls, timestamp: float, frame: bytes) -> "DataMessage":
         matches = cls.match_frame_or_raise(
-            b"^\x02(?P<data>[^!]*)!\r\n\x03(?P<block_check>.)$",
+            cls.frame_expression,
             frame,
         )
 
