@@ -1,0 +1,142 @@
+[logging]
+level = 40 # error level (see built-in python logging levels)
+
+[mqtt]
+enabled = true
+configuration_topic_template = "homeassistant/sensor/{entity_id}/config"
+state_topic_template = "homeassistant/sensor/{entity_id}/state"
+
+[mqtt.broker]
+hostname = "localhost"
+port = 1883
+
+[mqtt.device]
+id = "power-meter-0"
+name = "Power Meter 0"
+manufacturer = "Landis+Gyr"
+model = "Unknown Model"
+
+[serial_port]
+port_url = "/dev/ttyUSB0"
+baud_rate = 300
+byte_size = 7
+parity = E
+read_timeout = 30.0
+response_delay = 0.3
+
+[obis]
+
+[[obis.data_sets]]
+id = [1, 1, 0, 0, 0]
+name = "Meter Id"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 1, 0, 1, 0]
+name = "Billing Period Counter"
+value_type = "integer"
+
+[[obis.data_sets]]
+id = [1, 1, 0, 2, 0]
+name = "Meter Program Identifier"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 1, 0, 2, 1]
+name = "Meter Program Version"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 1, 0, 2, 8]
+name = "Meter Program Signature"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 1, 97, 97]
+name = "Meter Error Flags"
+value_type = "string"
+
+[[obis.data_sets]]
+id = [1, 1, 1, 8, 0]
+name = "Positive Active Power Integral Total"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 2, 8, 0]
+name = "Negative Active Power Integral Total"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 16, 7, 0]
+name = "Sum Active Power Instantaneous Total"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 36, 7, 0]
+name = "Active Power Instantaneous L1"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 56, 7, 0]
+name = "Active Power Instantaneous L2"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 76, 7, 0]
+name = "Active Power Instantaneous L3"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 32, 7, 0]
+name = "Voltage Instantaneous L1"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 52, 7, 0]
+name = "Voltage Instantaneous L2"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 72, 7, 0]
+name = "Voltage Instantaneous L3"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 31, 7, 0]
+name = "Current Instantaneous L1"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 51, 7, 0]
+name = "Current Instantaneous L2"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 71, 7, 0]
+name = "Current Instantaneous L3"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 14, 7, 0]
+name = "Frequency Instantaneous"
+value_type = "float"
+
+[[obis.data_sets]]
+id = [1, 1, 96, 7, 0]
+name = "Power Failures All Phases"
+value_type = "integer"
+
+[[obis.data_sets]]
+id = [1, 1, 96, 7, 1]
+name = "Power Failures L1"
+value_type = "integer"
+
+[[obis.data_sets]]
+id = [1, 1, 96, 7, 2]
+name = "Power Failures L2"
+value_type = "integer"
+
+[[obis.data_sets]]
+id = [1, 1, 96, 7, 3]
+name = "Power Failures L3"
+value_type = "integer"
