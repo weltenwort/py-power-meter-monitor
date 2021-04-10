@@ -1,12 +1,13 @@
 from enum import Enum, IntEnum
 from pathlib import Path
-from typing import List, Literal, Optional, Tuple, Union
+from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel
 import tomlkit  # type: ignore (no stub)
 
 from .iec_62056_protocol.obis_data_set import (
     ObisFloatDataSet,
+    ObisId,
     ObisIntegerDataSet,
     ObisStringDataSet,
 )
@@ -92,7 +93,7 @@ class MqttConfig(BaseModel):
 
 
 class ObisBaseDataSetConfig(BaseModel):
-    id: Tuple[int, int, int, int, int, int]
+    id: ObisId
     name: str
 
 
