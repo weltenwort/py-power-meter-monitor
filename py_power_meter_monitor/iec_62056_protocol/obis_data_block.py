@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from ..config import ObisDataSetConfig
-from .data_block import DataBlock
+from .data_block import DataBlock, DataSet
 from .obis_data_set import (
     ObisDataSet,
     ObisId,
@@ -11,7 +11,11 @@ from .obis_data_set import (
 )
 
 
-METERING_POINT_ID_OBIS_ID: ObisId = (1, 0, 96, 1, 0, 255)
+METERING_POINT_ID_OBIS_IDS: list[ObisId] = [
+    (1, 0, 0, 0, 0),
+    (1, 1, 0, 0, 0),
+    (1, 0, 96, 1, 0, 255),
+]
 
 
 @dataclass
@@ -26,7 +30,7 @@ class ObisDataBlock:
                 data_set.value
                 for data_set in self.data_sets
                 if isinstance(data_set, ObisStringDataSet)
-                and data_set.id == METERING_POINT_ID_OBIS_ID
+                and data_set.id in METERING_POINT_ID_OBIS_IDS
             ),
             None,
         )
@@ -37,7 +41,7 @@ class ObisDataBlock:
         obis_data_set_configs: dict[ObisId, ObisDataSetConfig],
         data_block: DataBlock,
     ):
-        def parse_data_set(data_set):
+        def parse_data_set(data_set: DataSet):
             data_set_id = parse_obis_id_from_address(data_set.address)
             obis_data_set_config = obis_data_set_configs.get(data_set_id)
             obis_data_set_type = (
