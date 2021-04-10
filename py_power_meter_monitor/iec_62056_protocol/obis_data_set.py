@@ -5,7 +5,11 @@ from typing import Optional, Tuple, Union
 from .data_block import DataSet
 
 
-ObisId = Tuple[int, int, int, int, int, int]
+ObisId = Union[
+    Tuple[int, int, int, int],
+    Tuple[int, int, int, int, int],
+    Tuple[int, int, int, int, int, int],
+]
 
 
 @dataclass
@@ -108,14 +112,30 @@ def parse_obis_id_from_address(address: str) -> ObisId:
     if matches is None:
         raise ValueError(f"Failed to parse {address} as an OBIS id.")
 
-    return (
-        parse_id_code(matches.group("A")),
-        parse_id_code(matches.group("B")),
-        parse_id_code(matches.group("C")),
-        parse_id_code(matches.group("D")),
-        parse_id_code(matches.group("E")),
-        parse_id_code(matches.group("F")),
-    )
+    if matches.group("F"):
+        return (
+            parse_id_code(matches.group("A")),
+            parse_id_code(matches.group("B")),
+            parse_id_code(matches.group("C")),
+            parse_id_code(matches.group("D")),
+            parse_id_code(matches.group("E")),
+            parse_id_code(matches.group("F")),
+        )
+    elif matches.group("E"):
+        return (
+            parse_id_code(matches.group("A")),
+            parse_id_code(matches.group("B")),
+            parse_id_code(matches.group("C")),
+            parse_id_code(matches.group("D")),
+            parse_id_code(matches.group("E")),
+        )
+    else:
+        return (
+            parse_id_code(matches.group("A")),
+            parse_id_code(matches.group("B")),
+            parse_id_code(matches.group("C")),
+            parse_id_code(matches.group("D")),
+        )
 
 
 def parse_id_code(code: Optional[str]) -> int:

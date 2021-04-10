@@ -1,9 +1,10 @@
+# pyright: reportUnknownMemberType=false
 import json
 from logging import getLogger
 import re
 from typing import Dict
 
-import asyncio_mqtt
+import asyncio_mqtt  # type: ignore
 
 from ..config import MqttConfig, ObisDataSetConfig
 from ..iec_62056_protocol.data_block import DataBlock
@@ -135,7 +136,7 @@ def slugify_sensor_name(sensor_name: str):
     return slug_replacement_expressions.sub("-", sensor_name)
 
 
-def get_device_class(obis_data_set: ObisDataSet):
+def get_device_class(obis_data_set: ObisDataSet) -> dict[str, str]:
     if obis_data_set.unit is None:
         return {}
 

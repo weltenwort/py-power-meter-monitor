@@ -49,23 +49,27 @@ def test_parse_obis_string_data_set():
 
 
 def test_parse_only_mandatory_groups():
-    assert parse_obis_id_from_address("1.2") == (0, 0, 1, 2, 0, 0)
+    assert parse_obis_id_from_address("1.2") == (0, 0, 1, 2)
+
+
+def test_parse_shortened_end():
+    assert parse_obis_id_from_address("1-1:1.2") == (1, 1, 1, 2)
 
 
 def test_parse_obis_display_code_f():
-    assert parse_obis_id_from_address("1-1:F.F") == (1, 1, 97, 97, 0, 0)
+    assert parse_obis_id_from_address("1-1:F.F") == (1, 1, 97, 97)
 
 
 def test_parse_obis_display_code_c():
-    assert parse_obis_id_from_address("1-1:C.7.0") == (1, 1, 96, 7, 0, 0)
+    assert parse_obis_id_from_address("1-1:C.7.0") == (1, 1, 96, 7, 0)
 
 
 def test_parse_obis_display_code_l():
-    assert parse_obis_id_from_address("1-1:L.0") == (1, 1, 98, 0, 0, 0)
+    assert parse_obis_id_from_address("1-1:L.0") == (1, 1, 98, 0)
 
 
 def test_parse_obis_display_code_p():
-    assert parse_obis_id_from_address("1-1:P.0") == (1, 1, 99, 0, 0, 0)
+    assert parse_obis_id_from_address("1-1:P.0") == (1, 1, 99, 0)
 
 
 def test_parse_group_f_separator_star():
