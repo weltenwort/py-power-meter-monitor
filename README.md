@@ -62,9 +62,8 @@ Small note: If editing the Readme, please conform to the [standard-readme](https
 
 [MIT](LICENSE)
 
-
-[Landis-Gyr]: https://www.landisgyr.com/
-[Logarex]: http://www.logarex.cz/en/homepage
+[landis-gyr]: https://www.landisgyr.com/
+[logarex]: http://www.logarex.cz/en/homepage
 [issue]: https://github.com/weltenwort/py-power-meter-monitor/issues/new
 [poetry]: https://python-poetry.org/
 [podman]: https://podman.io/
