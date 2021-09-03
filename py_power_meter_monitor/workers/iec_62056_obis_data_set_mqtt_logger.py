@@ -141,6 +141,7 @@ def get_device_class(obis_data_set: ObisDataSet) -> dict[str, str]:
         return {}
 
     device_class = device_class_by_unit.get(obis_data_set.unit, None)
+    state_class = state_class_by_unit.get(obis_data_set.unit, None)
 
     return {
         "unit_of_measurement": obis_data_set.unit,
@@ -149,6 +150,13 @@ def get_device_class(obis_data_set: ObisDataSet) -> dict[str, str]:
                 "device_class": device_class,
             }
             if device_class
+            else {}
+        ),
+        **(
+            {
+                "state_class": state_class,
+            }
+            if state_class
             else {}
         ),
     }
@@ -162,4 +170,14 @@ device_class_by_unit = {
     "kWh": "energy",
     "A": "current",
     "V": "voltage",
+}
+
+state_class_by_unit = {
+    "°C": "measurement",
+    "W": "measurement",
+    "kW": "measurement",
+    "Wh": "total_increasing",
+    "kWh": "total_increasing",
+    "A": "measurement",
+    "V": "measurement",
 }
