@@ -1,11 +1,4 @@
-FROM localhost/archlinux-base:latest
+ARG VARIANT="3"
+FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
-ARG PYTHON_VERSION=3.9.4
-ARG POETRY_VERSION=1.1.5
-
-RUN source ~/.asdf/asdf.sh && \
-  echo "python ${PYTHON_VERSION}" >> ~/.tool-versions && \
-  echo "poetry ${POETRY_VERSION}" >> ~/.tool-versions && \
-  pwd && cat ~/.tool-versions && \
-  asdf plugin add python && asdf install python && \
-  asdf plugin add poetry && asdf install poetry
+RUN su vscode -c "pipx install poetry" 2>&1

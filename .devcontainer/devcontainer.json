@@ -1,32 +1,37 @@
 {
-	"name": "py-power-meter-monitor-3-9-2",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"args": {
-			"PYTHON_VERSION": "3.9.4",
-		}
-	},
-	"settings": {
-		"terminal.integrated.shell.linux": "/bin/bash",
-		"python.venvPath": "~/.cache/pypoetry/virtualenvs",
-		"python.linting.enabled": true,
-		"python.linting.flake8Enabled": true,
-		"python.languageServer": "Pylance",
-		"python.formatting.provider": "black",
-		"python.testing.pytestEnabled": true,
-		"python.testing.pytestArgs": [
-			"--hypothesis-show-statistics"
-		],
-		"python.analysis.diagnosticMode": "workspace"
-	},
-	"extensions": [
-		"ms-python.python",
-		"ms-python.vscode-pylance",
-	],
-	// "forwardPorts": [],
-	"postCreateCommand": "source ~/.asdf/asdf.sh && asdf reshim && poetry install",
-	"runArgs": [
-		"--userns=keep-id"
-	],
-	"containerUser": "user"
+  "name": "py-power-meter-monitor",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "..",
+    "args": {
+      "VARIANT": "3.9"
+    }
+  },
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "zsh",
+    "python.venvPath": "/home/vscode/.cache/pypoetry/virtualenvs",
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.formatting.provider": "black",
+    "python.testing.pytestEnabled": true,
+    "python.testing.pytestArgs": [
+      "--hypothesis-show-statistics"
+    ],
+    "python.analysis.diagnosticMode": "workspace",
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.python"
+    }
+  },
+  "extensions": [
+    "ms-python.python",
+    "github.vscode-pull-request-github",
+    "ms-python.vscode-pylance",
+    "bungcip.better-toml",
+    "esbenp.prettier-vscode"
+  ],
+  "remoteUser": "vscode",
+  "postCreateCommand": "poetry install"
 }
