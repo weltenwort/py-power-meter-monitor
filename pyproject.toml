@@ -31,6 +31,12 @@ py-power-meter-monitor = "py_power_meter_monitor.cli:app"
 disable = ["C0330", "C0326"]
 max-line-length = 88
 
+[tool.pyright]
+typeCheckingMode = "strict"
+reportMissingTypeStubs = "warning"
+reportImportCycles = "warning"
+useLibraryCodeForTypes = true
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
