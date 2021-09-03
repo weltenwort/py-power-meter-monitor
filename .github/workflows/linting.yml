@@ -21,14 +21,8 @@ jobs:
         with:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
-      - name: Upgrade pip
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt pip
-          pip --version
-
-      - name: Install poetry
-        run: |
-          pip install --constraint=.github/workflows/constraints.txt poetry
+      - name: Set up poetry
+        uses: Gr1N/setup-poetry@v7
 
       - name: Enable caching
         uses: actions/cache@v2.1.6
