@@ -138,3 +138,4 @@ dmypy.json
 cython_debug/
 workspace.code-workspace
 .vim/coc-settings.json
+.vscode/settings.json
