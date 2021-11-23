@@ -25,7 +25,7 @@ jobs:
         uses: Gr1N/setup-poetry@v7
 
       - name: Enable caching
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: ~/.cache/pypoetry/virtualenvs
           key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
