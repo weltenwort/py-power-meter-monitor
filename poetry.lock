@@ -27,14 +27,14 @@ python-versions = ">=3.5.3"
 
 [[package]]
 name = "asyncio-mqtt"
-version = "0.9.0"
+version = "0.11.0"
 description = "Idomatic asyncio wrapper around paho-mqtt."
 category = "main"
 optional = false
 python-versions = "*"
 
 [package.dependencies]
-paho-mqtt = ">=1.5.0"
+paho-mqtt = ">=1.6.0"
 
 [[package]]
 name = "atomicwrites"
@@ -230,7 +230,7 @@ pyparsing = ">=2.0.2"
 
 [[package]]
 name = "paho-mqtt"
-version = "1.5.1"
+version = "1.6.1"
 description = "MQTT version 5.0/3.1.1 client class"
 category = "main"
 optional = false
@@ -506,7 +506,7 @@ watchmedo = ["PyYAML (>=3.10)", "argh (>=0.24.1)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8b0208a8e3d6f97546f384c0ecc73ef69a0604946f129dd2cecde860f365431b"
+content-hash = "3c816006a77eb172fbabb0f44677c1abb152376adef72c3c3e73aa036f0ef879"
 
 [metadata.files]
 aioserial = [
@@ -522,8 +522,8 @@ async-timeout = [
     {file = "async_timeout-3.0.1-py3-none-any.whl", hash = "sha256:4291ca197d287d274d0b6cb5d6f8f8f82d434ed288f962539ff18cc9012f9ea3"},
 ]
 asyncio-mqtt = [
-    {file = "asyncio_mqtt-0.9.0-py3-none-any.whl", hash = "sha256:1c3f8ffbaa0425c80f644b71ce965eebbbc611e4173a7e8ecdb732a286a200bb"},
-    {file = "asyncio_mqtt-0.9.0.tar.gz", hash = "sha256:8e64ba2410e900d356c33688fe9e205fafb7318196d227c3f697ddf084cf7b6f"},
+    {file = "asyncio_mqtt-0.11.0-py3-none-any.whl", hash = "sha256:031213e8b2cef96732a6d5f3a43d1f3d7c23e99c4dc1a6d4349c985ac4d4eb95"},
+    {file = "asyncio_mqtt-0.11.0.tar.gz", hash = "sha256:b89a309f76cd03ea4b265a2b25c0a3a4c305a2c5fde20b7fdad2c08c892e5cb0"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
@@ -593,7 +593,7 @@ packaging = [
     {file = "packaging-20.9.tar.gz", hash = "sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5"},
 ]
 paho-mqtt = [
-    {file = "paho-mqtt-1.5.1.tar.gz", hash = "sha256:9feb068e822be7b3a116324e01fb6028eb1d66412bf98595ae72698965cb1cae"},
+    {file = "paho-mqtt-1.6.1.tar.gz", hash = "sha256:2a8291c81623aec00372b5a85558a372c747cbca8e9934dfe218638b8eefc26f"},
 ]
 pathspec = [
     {file = "pathspec-0.9.0-py2.py3-none-any.whl", hash = "sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a"},
