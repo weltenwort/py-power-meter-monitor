@@ -1,4 +1,4 @@
-FROM python:3.10.3-alpine as base
+FROM python:3.10.4-alpine as base
 
 RUN adduser --disabled-password py-power-meter-monitor
 USER py-power-meter-monitor
