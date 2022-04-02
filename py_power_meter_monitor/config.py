@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel
-import tomlkit  # type: ignore (no stub)
+from tomlkit.api import parse
 
 from .iec_62056_protocol.obis_data_set import (
     ObisFloatDataSet,
@@ -25,7 +25,7 @@ def load_configuration_from_file_path(config_file_path: Path):
 
 
 def load_configuration_from_text(config_file_text: str) -> "PyPowerMeterMonitorConfig":
-    return PyPowerMeterMonitorConfig.parse_obj(dict(tomlkit.parse(config_file_text)))
+    return PyPowerMeterMonitorConfig.parse_obj(dict(parse(config_file_text)))
 
 
 class LoggingLevel(IntEnum):

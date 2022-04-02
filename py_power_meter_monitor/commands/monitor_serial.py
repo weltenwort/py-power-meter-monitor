@@ -44,7 +44,7 @@ async def run_monitor_serial(
     with serial_port:
         async with asyncio_mqtt.Client(
             hostname=mqtt_config.broker.hostname,
-            port=int(mqtt_config.broker.port) if mqtt_config.broker.port else None,
+            port=mqtt_config.broker.port,
             username=mqtt_config.broker.username,
             password=mqtt_config.broker.password,
         ) as mqtt_client:
