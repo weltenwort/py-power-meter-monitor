@@ -146,7 +146,7 @@ pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
 name = "hypothesis"
-version = "6.46.10"
+version = "6.46.11"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -496,7 +496,7 @@ watchmedo = ["PyYAML (>=3.10)", "argh (>=0.24.1)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "69e31985235780ded2237eac409135869036c979d7f7793d75aaedc3f20ce2ce"
+content-hash = "7926208d34c9891e75fd9e8de7e49116983cda5a8d38f665bf1fa00e468ac875"
 
 [metadata.files]
 aioserial = [
@@ -576,8 +576,8 @@ flake8 = [
     {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.46.10-py3-none-any.whl", hash = "sha256:6f765fae7e7f1296b6d89daec4291c754d829592ec99ffaa049c5ed37a16ebad"},
-    {file = "hypothesis-6.46.10.tar.gz", hash = "sha256:4d5930e43fb362c5b64b30cfb94807b4ceb1d9930e621994fb4adf6e2650135c"},
+    {file = "hypothesis-6.46.11-py3-none-any.whl", hash = "sha256:4c912677c2c5d7cf0c25f623d940c32a7003345bd476b8820d03ed1228a422ee"},
+    {file = "hypothesis-6.46.11.tar.gz", hash = "sha256:f5c1cf61b24b094355577a6b8fbbb8eb54c1b0216fbc0519af97c46bddf43c42"},
 ]
 identify = [
     {file = "identify-2.1.0-py2.py3-none-any.whl", hash = "sha256:2a5fdf2f5319cc357eda2550bea713a404392495961022cf2462624ce62f0f46"},
