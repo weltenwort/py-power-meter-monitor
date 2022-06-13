@@ -124,6 +124,17 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "exceptiongroup"
+version = "1.0.0rc8"
+description = "Backport of PEP 654 (exception groups)"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+test = ["pytest (>=6)"]
+
+[[package]]
 name = "filelock"
 version = "3.0.12"
 description = "A platform independent file lock."
@@ -146,7 +157,7 @@ pyflakes = ">=2.4.0,<2.5.0"
 
 [[package]]
 name = "hypothesis"
-version = "6.47.1"
+version = "6.47.2"
 description = "A library for property-based testing"
 category = "dev"
 optional = false
@@ -154,6 +165,7 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 attrs = ">=19.2.0"
+exceptiongroup = {version = ">=1.0.0rc8", markers = "python_version < \"3.11.0b1\""}
 sortedcontainers = ">=2.1.0,<3.0.0"
 
 [package.extras]
@@ -496,7 +508,7 @@ watchmedo = ["PyYAML (>=3.10)", "argh (>=0.24.1)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "72dac23caae945833880b9653b79d8069d928c11d8dfdab26cdbe1d5b8dbe5a5"
+content-hash = "287914f968b83ce73c34c5f11e2698f188d5b7355124c0df0f1f18f2d6d3afee"
 
 [metadata.files]
 aioserial = [
@@ -567,6 +579,10 @@ distlib = [
 docopt = [
     {file = "docopt-0.6.2.tar.gz", hash = "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"},
 ]
+exceptiongroup = [
+    {file = "exceptiongroup-1.0.0rc8-py3-none-any.whl", hash = "sha256:ab0a968e1ef769e55d9a596f4a89f7be9ffedbc9fdefdb77cc68cf5c33ce1035"},
+    {file = "exceptiongroup-1.0.0rc8.tar.gz", hash = "sha256:6990c24f06b8d33c8065cfe43e5e8a4bfa384e0358be036af9cc60b6321bd11a"},
+]
 filelock = [
     {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
     {file = "filelock-3.0.12.tar.gz", hash = "sha256:18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59"},
@@ -576,8 +592,8 @@ flake8 = [
     {file = "flake8-4.0.1.tar.gz", hash = "sha256:806e034dda44114815e23c16ef92f95c91e4c71100ff52813adf7132a6ad870d"},
 ]
 hypothesis = [
-    {file = "hypothesis-6.47.1-py3-none-any.whl", hash = "sha256:69978811f1d9c19710c7d2bf8233dc43c80efa964251b72efbe8274044e073b4"},
-    {file = "hypothesis-6.47.1.tar.gz", hash = "sha256:4ad26c5d434171ffc02aba569dd52255573d615554c062bc30734dbe6f318c61"},
+    {file = "hypothesis-6.47.2-py3-none-any.whl", hash = "sha256:d6a7bb1b695edc57388b86960138d23aeddcb95192cff49755e280e3296558c9"},
+    {file = "hypothesis-6.47.2.tar.gz", hash = "sha256:9c01a225eada7d74d38430e3e91e659e3a892fbc2b15f7b051779ded6ab73ee7"},
 ]
 identify = [
     {file = "identify-2.1.0-py2.py3-none-any.whl", hash = "sha256:2a5fdf2f5319cc357eda2550bea713a404392495961022cf2462624ce62f0f46"},
