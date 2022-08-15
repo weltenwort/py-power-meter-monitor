@@ -75,10 +75,10 @@ tomli = {version = ">=1.1.0", markers = "python_full_version < \"3.11.0a7\""}
 typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
-colorama = ["colorama (>=0.4.3)"]
-d = ["aiohttp (>=3.7.4)"]
-jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
+jupyter = ["tokenize-rt (>=3.2.0)", "ipython (>=7.8.0)"]
+d = ["aiohttp (>=3.7.4)"]
+colorama = ["colorama (>=0.4.3)"]
 
 [[package]]
 name = "cfgv"
@@ -169,20 +169,20 @@ exceptiongroup = {version = ">=1.0.0rc8", markers = "python_version < \"3.11\""}
 sortedcontainers = ">=2.1.0,<3.0.0"
 
 [package.extras]
-all = ["black (>=19.10b0)", "click (>=7.0)", "django (>=2.2)", "dpcontracts (>=0.4)", "lark-parser (>=0.6.5)", "libcst (>=0.3.16)", "numpy (>=1.9.0)", "pandas (>=0.25)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "importlib-metadata (>=3.6)", "backports.zoneinfo (>=0.2.1)", "tzdata (>=2022.1)"]
-cli = ["click (>=7.0)", "black (>=19.10b0)", "rich (>=9.0.0)"]
-codemods = ["libcst (>=0.3.16)"]
-dateutil = ["python-dateutil (>=1.4)"]
-django = ["django (>=2.2)"]
-dpcontracts = ["dpcontracts (>=0.4)"]
-ghostwriter = ["black (>=19.10b0)"]
-lark = ["lark-parser (>=0.6.5)"]
-numpy = ["numpy (>=1.9.0)"]
-pandas = ["pandas (>=0.25)"]
-pytest = ["pytest (>=4.6)"]
-pytz = ["pytz (>=2014.1)"]
+zoneinfo = ["tzdata (>=2022.1)", "backports.zoneinfo (>=0.2.1)"]
 redis = ["redis (>=3.0.0)"]
-zoneinfo = ["backports.zoneinfo (>=0.2.1)", "tzdata (>=2022.1)"]
+pytz = ["pytz (>=2014.1)"]
+pytest = ["pytest (>=4.6)"]
+pandas = ["pandas (>=0.25)"]
+numpy = ["numpy (>=1.9.0)"]
+lark = ["lark-parser (>=0.6.5)"]
+ghostwriter = ["black (>=19.10b0)"]
+dpcontracts = ["dpcontracts (>=0.4)"]
+django = ["django (>=2.2)"]
+dateutil = ["python-dateutil (>=1.4)"]
+codemods = ["libcst (>=0.3.16)"]
+cli = ["rich (>=9.0.0)", "black (>=19.10b0)", "click (>=7.0)"]
+all = ["tzdata (>=2022.1)", "backports.zoneinfo (>=0.2.1)", "importlib-metadata (>=3.6)", "rich (>=9.0.0)", "redis (>=3.0.0)", "pytz (>=2014.1)", "python-dateutil (>=1.4)", "pytest (>=4.6)", "pandas (>=0.25)", "numpy (>=1.9.0)", "libcst (>=0.3.16)", "lark-parser (>=0.6.5)", "dpcontracts (>=0.4)", "django (>=2.2)", "click (>=7.0)", "black (>=19.10b0)"]
 
 [[package]]
 name = "identify"
@@ -266,8 +266,8 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-docs = ["Sphinx (>=4)", "furo (>=2021.7.5b38)", "proselint (>=0.10.2)", "sphinx-autodoc-typehints (>=1.12)"]
-test = ["appdirs (==1.4.4)", "pytest (>=6)", "pytest-cov (>=2.7)", "pytest-mock (>=3.6)"]
+test = ["pytest-mock (>=3.6)", "pytest-cov (>=2.7)", "pytest (>=6)", "appdirs (==1.4.4)"]
+docs = ["sphinx-autodoc-typehints (>=1.12)", "proselint (>=0.10.2)", "furo (>=2021.7.5b38)", "Sphinx (>=4)"]
 
 [[package]]
 name = "pluggy"
@@ -324,8 +324,8 @@ python-versions = ">=3.6.1"
 typing-extensions = ">=3.7.4.3"
 
 [package.extras]
-dotenv = ["python-dotenv (>=0.10.4)"]
 email = ["email-validator (>=1.0.3)"]
+dotenv = ["python-dotenv (>=0.10.4)"]
 
 [[package]]
 name = "pyflakes"
@@ -387,7 +387,7 @@ python-versions = ">=3.7"
 pytest = ">=6.1.0"
 
 [package.extras]
-testing = ["coverage (==6.2)", "hypothesis (>=5.7.1)", "flaky (>=3.5.0)", "mypy (==0.931)", "pytest-trio (>=0.7.0)"]
+testing = ["pytest-trio (>=0.7.0)", "mypy (==0.931)", "flaky (>=3.5.0)", "hypothesis (>=5.7.1)", "coverage (==6.2)"]
 
 [[package]]
 name = "pytest-watch"
@@ -445,11 +445,11 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "tomlkit"
-version = "0.7.2"
+version = "0.11.4"
 description = "Style preserving TOML library"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.6,<4.0"
 
 [[package]]
 name = "typer"
@@ -463,10 +463,10 @@ python-versions = ">=3.6"
 click = ">=7.1.1,<9.0.0"
 
 [package.extras]
-all = ["colorama (>=0.4.3,<0.5.0)", "shellingham (>=1.3.0,<2.0.0)"]
-dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)", "pre-commit (>=2.17.0,<3.0.0)"]
-doc = ["mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "mdx-include (>=1.4.1,<2.0.0)"]
-test = ["shellingham (>=1.3.0,<2.0.0)", "pytest (>=4.4.0,<5.4.0)", "pytest-cov (>=2.10.0,<3.0.0)", "coverage (>=5.2,<6.0)", "pytest-xdist (>=1.32.0,<2.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "mypy (==0.910)", "black (>=22.3.0,<23.0.0)", "isort (>=5.0.6,<6.0.0)"]
+test = ["isort (>=5.0.6,<6.0.0)", "black (>=22.3.0,<23.0.0)", "mypy (==0.910)", "pytest-sugar (>=0.9.4,<0.10.0)", "pytest-xdist (>=1.32.0,<2.0.0)", "coverage (>=5.2,<6.0)", "pytest-cov (>=2.10.0,<3.0.0)", "pytest (>=4.4.0,<5.4.0)", "shellingham (>=1.3.0,<2.0.0)"]
+doc = ["mdx-include (>=1.4.1,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "mkdocs (>=1.1.2,<2.0.0)"]
+dev = ["pre-commit (>=2.17.0,<3.0.0)", "flake8 (>=3.8.3,<4.0.0)", "autoflake (>=1.3.1,<2.0.0)"]
+all = ["shellingham (>=1.3.0,<2.0.0)", "colorama (>=0.4.3,<0.5.0)"]
 
 [[package]]
 name = "typing-extensions"
@@ -491,8 +491,8 @@ filelock = ">=3.0.0,<4"
 six = ">=1.9.0,<2"
 
 [package.extras]
-docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sphinx-rtd-theme (>=0.4.3)", "towncrier (>=19.9.0rc1)"]
-testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)", "packaging (>=20.0)", "xonsh (>=0.9.16)"]
+testing = ["xonsh (>=0.9.16)", "packaging (>=20.0)", "pytest-timeout (>=1)", "pytest-randomly (>=1)", "pytest-mock (>=2)", "pytest-freezegun (>=0.4.1)", "pytest-env (>=0.6.2)", "pytest (>=4)", "flaky (>=3)", "coverage-enable-subprocess (>=1)", "coverage (>=4)"]
+docs = ["towncrier (>=19.9.0rc1)", "sphinx-rtd-theme (>=0.4.3)", "sphinx-argparse (>=0.2.5)", "sphinx (>=3)", "proselint (>=0.10.2)"]
 
 [[package]]
 name = "watchdog"
@@ -503,12 +503,12 @@ optional = false
 python-versions = ">=3.6"
 
 [package.extras]
-watchmedo = ["PyYAML (>=3.10)", "argh (>=0.24.1)"]
+watchmedo = ["argh (>=0.24.1)", "PyYAML (>=3.10)"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "9e36bea0e6d121c1c4931f167ba549747c7aa8503095481ac7d63e285d47e9be"
+content-hash = "85072d75619d6eb5af3ad96bd3ed972f333c147dbde6116eff2a9bbf337e978f"
 
 [metadata.files]
 aioserial = [
@@ -755,8 +755,8 @@ tomli = [
     {file = "tomli-1.2.1.tar.gz", hash = "sha256:a5b75cb6f3968abb47af1b40c1819dc519ea82bcc065776a866e8d74c5ca9442"},
 ]
 tomlkit = [
-    {file = "tomlkit-0.7.2-py2.py3-none-any.whl", hash = "sha256:173ad840fa5d2aac140528ca1933c29791b79a374a0861a80347f42ec9328117"},
-    {file = "tomlkit-0.7.2.tar.gz", hash = "sha256:d7a454f319a7e9bd2e249f239168729327e4dd2d27b17dc68be264ad1ce36754"},
+    {file = "tomlkit-0.11.4-py3-none-any.whl", hash = "sha256:25d4e2e446c453be6360c67ddfb88838cfc42026322770ba13d1fbd403a93a5c"},
+    {file = "tomlkit-0.11.4.tar.gz", hash = "sha256:3235a9010fae54323e727c3ac06fb720752fe6635b3426e379daec60fbd44a83"},
 ]
 typer = [
     {file = "typer-0.4.2-py3-none-any.whl", hash = "sha256:023bae00d1baf358a6cc7cea45851639360bb716de687b42b0a4641cd99173f1"},
