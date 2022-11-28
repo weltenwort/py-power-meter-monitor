@@ -11,7 +11,7 @@ python = "^3.9"
 typer = "^0.4.2"
 pydantic = "^1.9.1"
 tomlkit = "^0.7.2"
-asyncio-mqtt = "^0.11.1"
+asyncio-mqtt = "^0.15.0"
 async-timeout = "^3.0.1"
 aioserial = "^1.3.0"
 
