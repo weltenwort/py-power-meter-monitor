@@ -22,7 +22,7 @@ jobs:
           python-version: ${{ env.DEFAULT_PYTHON }}
 
       - name: Set up poetry
-        uses: Gr1N/setup-poetry@v7
+        uses: Gr1N/setup-poetry@v8
 
       - name: Enable caching
         uses: actions/cache@v3
